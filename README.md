@@ -1,6 +1,6 @@
 # @lenremont/landing-kit
 
-Landing Kit creates a versioned Astro workspace for Lenremont landing pages. Version 0.1 contains the project generator and development rules; WordPress export and publication are intentionally deferred.
+Landing Kit creates a versioned Astro workspace for Lenremont landing pages. Version 0.2 contains the project generator, mandatory lead-capture and social QR blocks, and development rules; WordPress export and publication are intentionally deferred.
 
 ## Requirements
 
@@ -38,4 +38,4 @@ The diagnostic screen must be deleted when actual landing development begins.
 
 ## Current scope
 
-Version 0.1 does not contain WordPress credentials, plugin code, media upload, HTML transformation, or publishing commands.
+Version 0.2 does not contain WordPress credentials, plugin code, media upload, HTML transformation, or publishing commands.
