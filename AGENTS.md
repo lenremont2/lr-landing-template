@@ -1,6 +1,6 @@
 # Landing Kit repository rules
 
-- Current implementation scope is `@lenremont2/landing-kit` 0.1: Astro project creation only.
+- Current implementation scope is `@lenremont/landing-kit` 0.1: Astro project creation only.
 - Do not implement WordPress export, publication configuration, credentials, API calls, or plugin code in this version.
 - Treat `templates/base` as the exact generated-project tree; do not construct landing source files inside CLI strings.
 - Keep CLI runtime code dependency-free and compatible with Node 22.12 and Node 24.

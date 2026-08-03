@@ -26,7 +26,7 @@ export function createProjectPackage(projectName) {
     },
     devDependencies: {
       "@astrojs/check": "0.9.10",
-      "@lenremont2/landing-kit": LANDING_KIT_VERSION,
+      [LANDING_KIT_PACKAGE.name]: LANDING_KIT_VERSION,
       astro: "7.1.6",
       prettier: "3.9.6",
       "prettier-plugin-astro": "0.14.1",

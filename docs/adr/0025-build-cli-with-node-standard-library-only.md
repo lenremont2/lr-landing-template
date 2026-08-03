@@ -4,7 +4,7 @@ status: accepted
 
 # Реализовать CLI только на стандартной библиотеке Node.js
 
-Рабочий код `@lenremont2/landing-kit` не использует сторонние runtime-зависимости. Аргументы разбираются через `node:util.parseArgs`, интерактивные вопросы выполняются через `node:readline/promises`, файловые операции — через `node:fs/promises`, а npm и Git запускаются через `node:child_process`.
+Рабочий код `@lenremont/landing-kit` не использует сторонние runtime-зависимости. Аргументы разбираются через `node:util.parseArgs`, интерактивные вопросы выполняются через `node:readline/promises`, файловые операции — через `node:fs/promises`, а npm и Git запускаются через `node:child_process`.
 
 Для автоматических тестов используется встроенный `node:test`. Commander, Inquirer, Chalk, fs-extra и другие библиотеки аналогичного назначения не входят в `dependencies` пакета.
 

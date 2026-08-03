@@ -1,6 +1,6 @@
 # Lenremont landing rules
 
-Rules snapshot: @lenremont2/landing-kit 0.1.0.
+Rules snapshot: @lenremont/landing-kit 0.1.0.
 
 - Build one static Astro landing inside the single `#hop-landing` root.
 - Prefix project classes with `lr-`; use classes for CSS and `data-*` hooks for JavaScript.

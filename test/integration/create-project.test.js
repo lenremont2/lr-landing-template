@@ -49,7 +49,7 @@ test("create writes a complete versioned project without optional side effects",
     });
     assert.deepEqual(packageJson.devDependencies, {
       "@astrojs/check": "0.9.10",
-      "@lenremont2/landing-kit": "0.1.0",
+      "@lenremont/landing-kit": "0.1.0",
       astro: "7.1.6",
       prettier: "3.9.6",
       "prettier-plugin-astro": "0.14.1",
