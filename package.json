@@ -20,7 +20,7 @@
   "type": "module",
   "private": false,
   "bin": {
-    "landing-kit": "./bin/landing-kit.js"
+    "landing-kit": "bin/landing-kit.js"
   },
   "files": [
     "bin",
