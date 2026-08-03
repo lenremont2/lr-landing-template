@@ -1,8 +1,22 @@
 {
-  "name": "@lenremont2/landing-kit",
+  "name": "@lenremont/landing-kit",
   "version": "0.1.0",
   "description": "Create and maintain Astro landing projects for Lenremont.",
+  "author": "Lenremont",
   "license": "MIT",
+  "homepage": "https://github.com/lenremont2/lr-landing-template#readme",
+  "bugs": {
+    "url": "https://github.com/lenremont2/lr-landing-template/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lenremont2/lr-landing-template.git"
+  },
+  "keywords": [
+    "astro",
+    "landing-page",
+    "lenremont"
+  ],
   "type": "module",
   "private": false,
   "bin": {

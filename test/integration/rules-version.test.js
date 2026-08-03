@@ -8,7 +8,8 @@ test("generated rules identify the current Landing Kit version", async () => {
   const packageJson = JSON.parse(
     await readFile(new URL("package.json", repositoryRoot), "utf8"),
   );
-  const expectedMarker = `@lenremont2/landing-kit ${packageJson.version}`;
+  assert.equal(packageJson.name, "@lenremont/landing-kit");
+  const expectedMarker = `${packageJson.name} ${packageJson.version}`;
   const [agentRules, masterPrompt] = await Promise.all([
     readFile(new URL("templates/base/AGENTS.md", repositoryRoot), "utf8"),
     readFile(

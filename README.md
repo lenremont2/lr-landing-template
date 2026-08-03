@@ -1,4 +1,4 @@
-# @lenremont2/landing-kit
+# @lenremont/landing-kit
 
 Landing Kit creates a versioned Astro workspace for Lenremont landing pages. Version 0.1 contains the project generator and development rules; WordPress export and publication are intentionally deferred.
 
@@ -11,7 +11,7 @@ Landing Kit creates a versioned Astro workspace for Lenremont landing pages. Ver
 ## Create a project
 
 ```bash
-npx @lenremont2/landing-kit create lr-project-name
+npx @lenremont/landing-kit create lr-project-name
 ```
 
 With a project name, Landing Kit installs dependencies and initializes Git without additional questions. Git initialization is skipped when the target is already inside a Git worktree.

@@ -81,8 +81,7 @@ try {
   const packedCli = join(
     runnerDirectory,
     "node_modules",
-    "@lenremont2",
-    "landing-kit",
+    ...packMetadata.name.split("/"),
     "bin",
     "landing-kit.js",
   );
