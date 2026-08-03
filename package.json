@@ -1,0 +1,39 @@
+{
+  "name": "@lenremont2/landing-kit",
+  "version": "0.1.0",
+  "description": "Create and maintain Astro landing projects for Lenremont.",
+  "license": "MIT",
+  "type": "module",
+  "private": false,
+  "bin": {
+    "landing-kit": "./bin/landing-kit.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "test:unit": "node --test \"test/unit/**/*.test.js\"",
+    "test:integration": "node --test \"test/integration/**/*.test.js\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "quality": "npm test && npm run format:check",
+    "smoke:pack": "node scripts/smoke-pack.mjs",
+    "prepublishOnly": "npm run quality && npm run smoke:pack"
+  },
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0",
+    "npm": ">=10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "prettier-plugin-astro": "0.14.1"
+  }
+}
