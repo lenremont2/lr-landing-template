@@ -78,6 +78,14 @@ try {
     },
   );
 
+  const binShim = join(
+    runnerDirectory,
+    "node_modules",
+    ".bin",
+    process.platform === "win32" ? "landing-kit.cmd" : "landing-kit",
+  );
+  await access(binShim);
+
   const packedCli = join(
     runnerDirectory,
     "node_modules",
