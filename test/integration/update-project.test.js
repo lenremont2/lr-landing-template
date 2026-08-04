@@ -112,7 +112,7 @@ test("update refreshes infrastructure and preserves user source files", async ()
     assert.equal(packageJson.scripts.custom, "node custom-task.js");
     assert.equal(
       packageJson.devDependencies["@lenremont/landing-kit"],
-      "0.3.0",
+      "0.3.1",
     );
     assert.equal(packageJson.devDependencies.astro, "7.1.6");
     assert.equal(

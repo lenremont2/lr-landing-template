@@ -51,6 +51,7 @@ export async function createProject({
   const stagingDirectory = await mkdtemp(
     join(parentDirectory, `.${projectName}.landing-kit-`),
   );
+  const movedEntries = [];
 
   try {
     await cp(templateDirectory, stagingDirectory, {
@@ -66,11 +67,25 @@ export async function createProject({
       "utf8",
     );
 
-    if (targetExisted) {
-      await rmdir(targetDirectory);
+    if (!targetExisted) {
+      await rename(stagingDirectory, targetDirectory);
+    } else {
+      const entries = await readdir(stagingDirectory);
+      for (const entry of entries) {
+        await rename(
+          join(stagingDirectory, entry),
+          join(targetDirectory, entry),
+        );
+        movedEntries.push(entry);
+      }
+      await rmdir(stagingDirectory);
     }
-    await rename(stagingDirectory, targetDirectory);
   } catch (error) {
+    await Promise.all(
+      movedEntries.map((entry) =>
+        rm(join(targetDirectory, entry), { recursive: true, force: true }),
+      ),
+    );
     await rm(stagingDirectory, { recursive: true, force: true });
     if (targetExisted) {
       await mkdir(targetDirectory, { recursive: true });

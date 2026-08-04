@@ -1,4 +1,4 @@
-<!-- Rules snapshot: @lenremont/landing-kit 0.3.0 -->
+<!-- Rules snapshot: @lenremont/landing-kit 0.3.1 -->
 
 # Мастер-промпт разработки LR-лендингов
 

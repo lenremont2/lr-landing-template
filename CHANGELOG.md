@@ -2,6 +2,13 @@
 
 All notable Landing Kit changes are documented here.
 
+## [0.3.1] - 2026-08-04
+
+### Fixed
+
+- `landing-kit create .` no longer removes and replaces the current empty directory, avoiding Windows `EBUSY` failures when the invoking PowerShell is inside that directory.
+- A Windows integration test now reproduces the real parent-shell directory lock that the previous child-process test missed.
+
 ## [0.3.0] - 2026-08-04
 
 ### Added

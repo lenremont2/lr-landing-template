@@ -34,7 +34,8 @@ Run `create` without a project name to choose the name, dependency installation,
 
 To create the project directly in the current empty directory, use `.`. The
 project name is derived from the directory name, and the same non-empty target
-protection remains active.
+protection remains active. On Windows, Landing Kit keeps the current directory
+itself in place so the command works when PowerShell is running inside it.
 
 ```bash
 npx @lenremont/landing-kit create .
