@@ -42,8 +42,8 @@ export async function createProject({
   install,
   git,
   cwd = process.cwd(),
+  targetDirectory = resolve(cwd, projectName),
 }) {
-  const targetDirectory = resolve(cwd, projectName);
   const parentDirectory = dirname(targetDirectory);
   const targetExisted = await inspectTarget(targetDirectory);
 

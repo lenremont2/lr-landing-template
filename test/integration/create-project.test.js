@@ -14,6 +14,9 @@ const REQUIRED_FILES = [
   "src/layouts/LandingLayout.astro",
   "src/components/sections/LeadCapture.astro",
   "src/components/sections/SocialLinks.astro",
+  "public/media/lr-qr-tg.webp",
+  "public/media/lr-qr-vk.webp",
+  "public/media/lr-qr-max.webp",
   "src/components/ui/LeadModal.astro",
   "src/pages/index.astro",
   "src/scripts/landing.js",
@@ -52,7 +55,7 @@ test("create writes a complete versioned project without optional side effects",
     });
     assert.deepEqual(packageJson.devDependencies, {
       "@astrojs/check": "0.9.10",
-      "@lenremont/landing-kit": "0.2.0",
+      "@lenremont/landing-kit": "0.3.0",
       astro: "7.1.6",
       prettier: "3.9.6",
       "prettier-plugin-astro": "0.14.1",
@@ -90,6 +93,9 @@ test("create writes a complete versioned project without optional side effects",
     assert.match(socialLinks, /target="_blank"/u);
     assert.match(socialLinks, /loading="lazy"/u);
     assert.match(socialLinks, /label: "MAX"/u);
+    assert.match(socialLinks, /https:\/\/telegram\.me\/lenremont_bot/u);
+    assert.match(socialLinks, /https:\/\/vk\.com\/lenremont/u);
+    assert.match(socialLinks, /https:\/\/max\.ru\/id471902475874_3_bot/u);
   } finally {
     await rm(workspace, { recursive: true, force: true });
   }

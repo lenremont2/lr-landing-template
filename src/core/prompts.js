@@ -40,3 +40,31 @@ export async function promptForCreateOptions({
     readline.close();
   }
 }
+
+export async function promptForUpdateConfirmation({
+  input = process.stdin,
+  output = process.stdout,
+} = {}) {
+  const readline = createInterface({ input, output });
+  const question =
+    "Обновление изменит инфраструктурные файлы и зависимости проекта. Пользовательские исходники и медиа останутся без изменений. Продолжить? (y/N)";
+
+  try {
+    const answer = (await readline.question(`${question}: `))
+      .trim()
+      .toLowerCase();
+
+    if (["y", "yes", "д", "да"].includes(answer)) {
+      return true;
+    }
+    if (["", "n", "no", "н", "нет"].includes(answer)) {
+      return false;
+    }
+
+    throw new Error(
+      `Не удалось распознать ответ на вопрос «${question}». Введите y или n.`,
+    );
+  } finally {
+    readline.close();
+  }
+}

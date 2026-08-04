@@ -21,11 +21,12 @@ function run(command, arguments_, options = {}) {
   const result = spawnSync(command, arguments_, {
     cwd: options.cwd,
     encoding: "utf8",
+    input: options.input,
     env: {
       ...process.env,
       NO_COLOR: "1",
     },
-    stdio: options.capture ? "pipe" : "inherit",
+    stdio: options.capture || options.input !== undefined ? "pipe" : "inherit",
   });
 
   if (result.error) {
@@ -93,10 +94,34 @@ try {
     "bin",
     "landing-kit.js",
   );
+  await mkdir(projectDirectory);
   run(
     process.execPath,
-    [packedCli, "create", "lr-smoke", "--no-install", "--no-git"],
-    { cwd: workspace },
+    [packedCli, "create", ".", "--no-install", "--no-git"],
+    { cwd: projectDirectory },
+  );
+
+  const preservedSourcePath = join(
+    projectDirectory,
+    "src",
+    "preserved-by-update.txt",
+  );
+  await writeFile(preservedSourcePath, "user source\n", "utf8");
+  await writeFile(
+    join(projectDirectory, "astro.config.mjs"),
+    "// stale infrastructure\n",
+    "utf8",
+  );
+  const updateResult = run(
+    process.execPath,
+    [packedCli, "update", "--no-install"],
+    { cwd: projectDirectory, input: "y\n" },
+  );
+  assert.match(updateResult.stdout, /Проект обновлён/u);
+  assert.equal(await readFile(preservedSourcePath, "utf8"), "user source\n");
+  assert.match(
+    await readFile(join(projectDirectory, "astro.config.mjs"), "utf8"),
+    /output: "static"/u,
   );
 
   runNpm(
