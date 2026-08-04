@@ -27,3 +27,25 @@ export function parseCreateArguments(arguments_) {
     git: !values["no-git"],
   };
 }
+
+export function parseUpdateArguments(arguments_) {
+  const { positionals, values } = parseArgs({
+    args: arguments_,
+    allowPositionals: true,
+    strict: true,
+    options: {
+      "no-install": {
+        type: "boolean",
+        default: false,
+      },
+    },
+  });
+
+  if (positionals.length > 0) {
+    throw new Error("Команда update запускается без имени проекта.");
+  }
+
+  return {
+    install: !values["no-install"],
+  };
+}
