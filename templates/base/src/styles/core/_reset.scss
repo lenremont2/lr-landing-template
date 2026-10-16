@@ -9,6 +9,10 @@
   margin: 0;
 }
 
+#hop-landing [hidden] {
+  display: none !important;
+}
+
 #hop-landing img,
 #hop-landing video {
   display: block;

@@ -2,6 +2,15 @@
 
 All notable Landing Kit changes are documented here.
 
+## [Unreleased]
+
+### Fixed
+
+- Lead Capture rules now use `data-lead-ignore`, require contacts inside the visible lead block, and clarify custom quiz and dialpad examples.
+- Quiz answers and contact method are copied into separate fields in the final form and preserved when the modal closes.
+- Forms include service and success hooks; local demo handling is limited to Astro development and does not require an endpoint for HTML On Page capture.
+- Scoped hidden-state styling keeps inactive quiz steps and the success screen hidden.
+
 ## [0.3.1] - 2026-08-04
 
 ### Fixed

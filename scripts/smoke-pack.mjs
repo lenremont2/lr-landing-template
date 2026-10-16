@@ -141,6 +141,15 @@ try {
   const outputHtml = await readFile(outputHtmlPath, "utf8");
   assert.match(outputHtml, /id="hop-landing"/u);
   assert.match(outputHtml, /Диагностический экран подключён/u);
+  const [, leadForm] = outputHtml.match(/<form\b([^]*?)<\/form>/u);
+  assert.match(leadForm, /data-hop-lead-form/u);
+  assert.match(leadForm, /name="phone" type="tel"/u);
+  assert.match(leadForm, /name="contact_method" type="hidden"/u);
+  assert.match(leadForm, /name="quiz_answer" type="hidden"/u);
+  assert.match(leadForm, /name="quiz_service" type="hidden"/u);
+  assert.match(leadForm, /type="submit"/u);
+  assert.doesNotMatch(leadForm, /data-lr-demo-form/u);
+  assert.match(outputHtml, /data-lead-success hidden/u);
 
   process.stdout.write(
     `Smoke test пройден: ${packMetadata.filename} создает проверяемую Astro-сборку.\n`,

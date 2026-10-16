@@ -634,35 +634,35 @@ WordPress-тема Themeco Pro / Cornerstone загружает глобальн
 
 Обязательные правила:
 
-- В момент отправки есть телефон минимум из 10 цифр или корректный email.
+- В момент финальной отправки внутри видимого блока заявки (`form` или `data-lead-root`) есть заполненное контактное поле: `phone` или `email`. Для dialpad допустим скрытый `input name="phone"`, синхронизированный с видимым вводом телефона внутри того же блока.
 - Каждое передаваемое поле имеет `name`.
 - Используй стандартные имена `name`, `phone`, `email`, `contact_method`.
+- Ответы скрываемых шагов квиза дублируй отдельными именованными полями внутри финальной формы, включая `contact_method`; одного JSON-поля с ответами недостаточно.
 - Radio и checkbox имеют реальные `name` и `value`.
-- Финальная кнопка — `type="submit"` или `data-hop-lead-submit`.
+- Финальная кнопка — `button type="submit"` либо `button type="button" data-hop-lead-submit`.
 - Финальная кнопка не является ссылкой.
-- Success-состояние помечено `data-lead-success`.
+- Если показываешь success-экран, можно дополнительно пометить его `data-lead-success`; показывай его только после подтверждённой отправки.
 - Поля не очищаются до отправки и success-состояния.
-- Игнорируемая форма помечается `data-hop-lead-ignore`.
+- Закрытие модалки не очищает введённые контакты и ответы квиза.
+- Если плагин должен игнорировать форму, пометь её `data-lead-ignore`.
 - Ошибка не удаляет введённые данные.
 - Повторная отправка блокируется на время обработки.
 - Используется утверждённый текст согласия на обработку данных.
 
 ## 23. Локальное поведение форм
 
-В локальном файле плагина нет. Для preview допускается локальная имитация успешной отправки, но она не должна конфликтовать с плагином после вставки.
+В локальном файле плагина нет. В Astro dev допускается только локальная проверка без отправки и без success-экрана. Добавляй `data-lr-demo-form="true"` при `import.meta.env.DEV`; в production-разметке атрибута быть не должно. Для HTML On Page `formAction` не обязателен; он нужен только при отдельной отправке на согласованный endpoint.
 
 ```js
-const forms = root.querySelectorAll('form[data-hop-lead-form]');
+const forms = root.querySelectorAll('form[data-lr-demo-form="true"]');
 
 forms.forEach((form) => {
   form.addEventListener('submit', (event) => {
-    if (window.HtmlOnPageLead?.ready) return;
-
     event.preventDefault();
     if (!form.reportValidity()) return;
 
-    const success = form.closest('[data-lead-root]')?.querySelector('[data-lead-success]');
-    if (success) success.hidden = false;
+    const message = form.querySelector('[data-lr-form-message]');
+    if (message) message.textContent = 'Локальная проверка пройдена. Заявка не отправлена.';
   });
 });
 ```
@@ -683,9 +683,14 @@ forms.forEach((form) => {
 
 Для квиза без `form`:
 
+На финальном шаге показывай контактный ввод внутри `data-lead-root`. Для кнопки `type="button"` проверяй заполнение и корректность контакта до отправки: `required` сам по себе её не блокирует.
+
 ```html
 <div data-lead-root>
-  <input name="phone" type="hidden" value="">
+  <label>
+    <span>Телефон</span>
+    <input name="phone" type="tel" autocomplete="tel" required>
+  </label>
   <button type="button" data-hop-lead-submit>Получить расчёт</button>
 </div>
 ```
@@ -708,8 +713,8 @@ forms.forEach((form) => {
 - сохраняется доступный клавиатурный или нативный fallback.
 
 ```html
-<div class="lr-dialpad__display" aria-live="polite">+7</div>
-<input name="phone" type="hidden" value="+7">
+<div class="lr-dialpad__display" aria-live="polite">+7 (999) 123-45-67</div>
+<input name="phone" type="hidden" value="+79991234567">
 ```
 
 ## 26. Доступность
@@ -754,7 +759,7 @@ python -m http.server 8080
 - все локальные медиа;
 - все CTA и ссылки;
 - модалки, Escape и focus trap;
-- формы и локальный preview-success;
+- формы и локальную проверку без отправки;
 - мобильный нумпад;
 - квиз и возврат назад;
 - CDN-библиотеки;

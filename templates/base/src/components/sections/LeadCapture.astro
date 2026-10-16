@@ -23,6 +23,7 @@ interface Props {
   quizOptions?: QuizOption[];
   contactMethods?: ContactMethod[];
   calculateLabel?: string;
+  serviceName?: string;
   formAction?: string;
   formTitle?: string;
   formText?: string;
@@ -72,6 +73,7 @@ const {
     },
   ],
   calculateLabel = "Рассчитать",
+  serviceName = "Подбор решения",
   formAction,
   formTitle = "Расчёт готов",
   formText = "Оставьте контакты — отправим расчёт выбранным способом связи.",
@@ -163,12 +165,16 @@ const {
       <form
         class="lr-form"
         action={formAction || undefined}
-        method={formAction ? "post" : undefined}
+        method="post"
         data-lr-lead-form
         data-hop-lead-form
-        data-lr-demo-form={formAction ? undefined : "true"}
+        data-lr-demo-form={import.meta.env.DEV && !formAction
+          ? "true"
+          : undefined}
       >
-        <input name="quiz" type="hidden" value="" data-lr-quiz-result />
+        <input name="quiz_answer" type="hidden" value="" />
+        <input name="contact_method" type="hidden" value="" />
+        <input name="quiz_service" type="hidden" value={serviceName} />
         <label class="lr-form__field">
           <span>Ваше имя</span>
           <span class="lr-form__input-wrapper">
@@ -229,5 +235,6 @@ const {
         <p class="lr-form__message" aria-live="polite" data-lr-form-message></p>
       </form>
     </div>
+    <div data-lead-success hidden role="status">Заявка принята</div>
   </div>
 </LeadModal>

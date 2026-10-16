@@ -56,26 +56,10 @@ function initializeLanding() {
   };
 
   const saveQuizAnswers = (quiz) => {
-    const answers = Array.from(
-      quiz.querySelectorAll("[data-lr-quiz-answer]:checked"),
-    ).map((input) => ({ name: input.name, value: input.value }));
-    root.querySelectorAll("[data-lr-quiz-result]").forEach((input) => {
-      input.value = JSON.stringify(answers);
+    const form = quiz.querySelector("[data-hop-lead-form]");
+    quiz.querySelectorAll("[data-lr-quiz-answer]:checked").forEach((answer) => {
+      form.elements.namedItem(answer.name).value = answer.value;
     });
-  };
-
-  const resetQuiz = (quiz) => {
-    quiz.querySelectorAll("[data-lr-quiz-answer]").forEach((input) => {
-      input.checked = false;
-    });
-    quiz.querySelectorAll("[data-lr-quiz-message]").forEach((message) => {
-      message.textContent = "";
-    });
-    quiz.querySelectorAll("[data-lr-quiz-step]").forEach((step, index) => {
-      step.hidden = index !== 0;
-    });
-    quiz.querySelector("[data-lr-quiz-loading]").hidden = true;
-    quiz.querySelector("[data-lr-quiz-ready]").hidden = true;
   };
 
   root.addEventListener("click", (event) => {
@@ -144,26 +128,18 @@ function initializeLanding() {
 
   root.querySelectorAll("[data-lr-modal]").forEach((modal) => {
     modal.addEventListener("close", () => {
-      const quiz = modal.querySelector("[data-lr-quiz]");
-      if (quiz instanceof HTMLElement) {
-        resetQuiz(quiz);
-      }
       trigger?.focus();
       trigger = null;
     });
   });
 
-  root.querySelectorAll("[data-lr-lead-form]").forEach((form) => {
+  root.querySelectorAll('form[data-lr-demo-form="true"]').forEach((form) => {
     form.addEventListener("submit", (event) => {
-      if (form.dataset.lrDemoForm !== "true") {
-        return;
-      }
-
       event.preventDefault();
       const message = form.querySelector("[data-lr-form-message]");
       if (message) {
         message.textContent =
-          "Перед публикацией укажите formAction для отправки заявки.";
+          "Локальная проверка пройдена. Заявка не отправлена.";
       }
     });
   });
