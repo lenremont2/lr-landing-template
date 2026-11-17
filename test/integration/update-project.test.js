@@ -43,6 +43,11 @@ async function createExistingProject(projectDirectory) {
     "utf8",
   );
   await writeFile(
+    join(projectDirectory, "AGENTS.md"),
+    "# Existing project rules\n\nRead [the master prompt](docs/MASTER_DEVELOPMENT_PROMPT.md).\n",
+    "utf8",
+  );
+  await writeFile(
     join(projectDirectory, "src/pages/index.astro"),
     "<!-- user landing page -->\n",
     "utf8",
@@ -125,7 +130,18 @@ test("update refreshes infrastructure and preserves user source files", async ()
       /output: "static"/u,
     );
     await access(join(projectDirectory, ".gitignore"));
-    await access(join(projectDirectory, "AGENTS.md"));
+    await access(join(projectDirectory, "docs/MASTER_DEVELOPMENT_PROMPT.md"));
+    assert.equal(
+      await readFile(join(projectDirectory, "AGENTS.md"), "utf8"),
+      "# Existing project rules\n\nRead [the master prompt](docs/MASTER_DEVELOPMENT_PROMPT.md).\n",
+    );
+    await assert.rejects(
+      access(join(projectDirectory, "docs/landing-workflow.md")),
+      { code: "ENOENT" },
+    );
+    await assert.rejects(access(join(projectDirectory, ".agents")), {
+      code: "ENOENT",
+    });
     assert.equal(
       await readFile(join(projectDirectory, "src/pages/index.astro"), "utf8"),
       "<!-- user landing page -->\n",

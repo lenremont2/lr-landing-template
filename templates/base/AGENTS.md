@@ -2,7 +2,10 @@
 
 Rules snapshot: @lenremont/landing-kit 0.3.1.
 
+Для любой задачи по лендингу сначала прочитай [рабочий процесс](docs/landing-workflow.md). До первой правки прочитай подходящие `SKILL.md` по ссылкам из процесса. Перед существенной работой прочитай [MASTER_DEVELOPMENT_PROMPT.md](docs/MASTER_DEVELOPMENT_PROMPT.md) и сформулируй проверяемый критерий готовности.
+
 - Build one static Astro landing inside the single `#hop-landing` root.
+- Give each standalone section its own Astro component in `src/components/sections/`. Compose the landing without a site header or footer.
 - Prefix project classes with `lr-`; use classes for CSS and `data-*` hooks for JavaScript.
 - Keep all own selectors explicitly scoped by `#hop-landing`.
 - Put SCSS in `src/styles`; do not add component-scoped styles.
@@ -14,4 +17,4 @@ Rules snapshot: @lenremont/landing-kit 0.3.1.
 - Run `npm run quality` before handing off a change.
 - Do not add WordPress export, credentials, publication configuration, or plugin code in this version.
 
-Read `docs/MASTER_DEVELOPMENT_PROMPT.md` before substantial landing work.
+Команда запуска Pi и место для пользовательских правил указаны в [памятке по харнесу](docs/pi-harness.md).

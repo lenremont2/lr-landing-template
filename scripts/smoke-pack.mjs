@@ -4,12 +4,13 @@ import {
   access,
   mkdir,
   mkdtemp,
+  readdir,
   readFile,
   rm,
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryDirectory = resolve(
@@ -57,6 +58,67 @@ const workspace = await mkdtemp(join(tmpdir(), "landing-kit-pack-smoke-"));
 const runnerDirectory = join(workspace, "runner");
 const projectDirectory = join(workspace, "lr-smoke");
 
+async function verifyPackedHarness() {
+  const templateDirectory = join(repositoryDirectory, "templates", "base");
+  const skillsPath = ".agents/skills";
+  const skillEntries = await readdir(join(templateDirectory, skillsPath), {
+    recursive: true,
+    withFileTypes: true,
+  });
+  const workflowPath = "docs/landing-workflow.md";
+  const workflow = await readFile(join(projectDirectory, workflowPath), "utf8");
+  for (const skill of [
+    "landing-research",
+    "landing-scaffold",
+    "design-taste-frontend",
+    "project-ui",
+    "form-formatter",
+    "quiz-generator",
+    "family-pages-contract",
+  ]) {
+    assert.ok(workflow.includes(`../${skillsPath}/${skill}/SKILL.md`), skill);
+  }
+
+  for (const file of [
+    "AGENTS.md",
+    workflowPath,
+    "docs/pi-harness.md",
+    ...skillEntries
+      .filter((entry) => entry.isFile())
+      .map((entry) =>
+        relative(templateDirectory, join(entry.parentPath, entry.name)),
+      ),
+  ]) {
+    const path = join(projectDirectory, file);
+    const content = await readFile(path);
+    assert.deepEqual(
+      content,
+      await readFile(join(templateDirectory, file)),
+      file,
+    );
+    if (file.endsWith(".md")) {
+      for (const [, target] of content
+        .toString("utf8")
+        .matchAll(/\]\(([^)\s]+)\)/gu)) {
+        if (/^(?:[\w+.-]+:|#)/u.test(target)) continue;
+        const resolved = resolve(
+          dirname(path),
+          decodeURIComponent(target.split("#")[0]),
+        );
+        assert.ok(
+          resolved.startsWith(projectDirectory + sep),
+          `${file} links outside the project: ${target}`,
+        );
+        await access(resolved);
+      }
+    }
+  }
+
+  const rules = await readFile(join(projectDirectory, "AGENTS.md"), "utf8");
+  assert.ok(rules.includes("(docs/landing-workflow.md)"));
+  assert.ok(rules.includes("(docs/MASTER_DEVELOPMENT_PROMPT.md)"));
+}
+
 try {
   const packResult = runNpm(
     ["pack", "--json", "--pack-destination", workspace],
@@ -100,6 +162,20 @@ try {
     [packedCli, "create", ".", "--no-install", "--no-git"],
     { cwd: projectDirectory },
   );
+  await verifyPackedHarness();
+
+  const preservedHarnessFiles = new Map();
+  for (const file of [
+    "AGENTS.md",
+    "docs/landing-workflow.md",
+    "docs/pi-harness.md",
+    ".agents/skills/project-ui/SKILL.md",
+  ]) {
+    const path = join(projectDirectory, file);
+    const content = `${await readFile(path, "utf8")}\nUser project rule.\n`;
+    await writeFile(path, content, "utf8");
+    preservedHarnessFiles.set(path, content);
+  }
 
   const preservedSourcePath = join(
     projectDirectory,
@@ -118,6 +194,10 @@ try {
     { cwd: projectDirectory, input: "y\n" },
   );
   assert.match(updateResult.stdout, /Проект обновлён/u);
+  for (const [path, content] of preservedHarnessFiles) {
+    assert.equal(await readFile(path, "utf8"), content, path);
+  }
+  await access(join(projectDirectory, "docs/MASTER_DEVELOPMENT_PROMPT.md"));
   assert.equal(await readFile(preservedSourcePath, "utf8"), "user source\n");
   assert.match(
     await readFile(join(projectDirectory, "astro.config.mjs"), "utf8"),
@@ -152,7 +232,7 @@ try {
   assert.match(outputHtml, /data-lead-success hidden/u);
 
   process.stdout.write(
-    `Smoke test пройден: ${packMetadata.filename} создает проверяемую Astro-сборку.\n`,
+    `Smoke test пройден: ${packMetadata.filename} создаёт Astro-сборку и харнес Pi.\n`,
   );
 } finally {
   await rm(workspace, { recursive: true, force: true });

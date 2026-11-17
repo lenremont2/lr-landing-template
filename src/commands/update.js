@@ -18,9 +18,8 @@ const templateDirectory = fileURLToPath(
   new URL("../../templates/base/", import.meta.url),
 );
 const INFRASTRUCTURE_ENTRIES = [
-  "AGENTS.md",
   "astro.config.mjs",
-  "docs",
+  "docs/MASTER_DEVELOPMENT_PROMPT.md",
   "prettier.config.mjs",
   "tsconfig.json",
 ];
@@ -85,9 +84,7 @@ export async function updateProject({
 
   try {
     for (const entry of INFRASTRUCTURE_ENTRIES) {
-      await cp(join(templateDirectory, entry), join(stagingDirectory, entry), {
-        recursive: true,
-      });
+      await cp(join(templateDirectory, entry), join(stagingDirectory, entry));
     }
 
     await copyFile(
@@ -101,10 +98,7 @@ export async function updateProject({
     );
 
     for (const entry of INFRASTRUCTURE_ENTRIES) {
-      await cp(join(stagingDirectory, entry), join(projectDirectory, entry), {
-        recursive: true,
-        force: true,
-      });
+      await cp(join(stagingDirectory, entry), join(projectDirectory, entry));
     }
 
     await mkdir(projectDirectory, { recursive: true });

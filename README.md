@@ -52,18 +52,22 @@ npx @lenremont/landing-kit@latest update
 The command always displays a `(y/N)` confirmation before writing anything.
 Declining or submitting an empty answer leaves the project unchanged.
 
-An approved update refreshes the managed infrastructure files (`AGENTS.md`,
-Astro, Prettier and TypeScript configuration, `.gitignore`, and `docs`) and the
+An approved update refreshes the managed infrastructure files (Astro, Prettier
+and TypeScript configuration, `.gitignore`, and `docs/MASTER_DEVELOPMENT_PROMPT.md`) and the
 standard scripts, engines, and exact development dependency versions in
 `package.json`. Existing custom scripts, dependencies, and package metadata are
-preserved. Files inside `src` and `public` are never updated by this command.
+preserved. Project-owned files include `AGENTS.md`, the other files under
+`docs/`, `.agents/skills/`, `src/` and `public/`. The Pi harness is initialized
+by `create`.
 
 Dependencies are installed after the files are updated. Use `--no-install` to
 defer that step and run `npm install` manually.
 
 ## Generated project
 
-The project contains a removable diagnostic screen, modular SCSS with one entrypoint, one vanilla JavaScript entrypoint, compact agent rules, and the full versioned development reference.
+The project contains a removable diagnostic screen, modular SCSS with one entrypoint, one vanilla JavaScript entrypoint, and the full versioned development reference.
+
+The bundled Pi harness includes `AGENTS.md`, `docs/landing-workflow.md`, and seven local skills with their supporting resources. With Pi and a model configured, run `pi` from the generated project root and approve project trust when prompted. Describe the landing task in your own words. Add project rules to `AGENTS.md`. See `docs/pi-harness.md` in the generated project for usage and source snapshot details.
 
 ```bash
 npm run dev
