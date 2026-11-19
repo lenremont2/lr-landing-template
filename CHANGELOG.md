@@ -2,7 +2,7 @@
 
 All notable Landing Kit changes are documented here.
 
-## [Unreleased]
+## [0.4.0] - 2026-11-19
 
 - Split the development reference into seven task-specific chapters. Existing links reach the appropriate entry in the index. Both `create` and `update` deliver the chapters.
 - Route landing requests by deliverable and link to stable technical reference sections. Local changes and full-page acceptance have explicit viewport checks.
@@ -11,7 +11,6 @@ All notable Landing Kit changes are documented here.
 ### Added
 
 - Mark each lead quiz for Gutenberg transfer, isolate its modal and radio groups, and support returning to earlier steps. The transfer guide covers the plugin adapter and draft acceptance.
-
 - `landing-kit create` includes the Pi landing workflow, local skills, and Taste resources in generated Astro projects.
 
 ### Fixed

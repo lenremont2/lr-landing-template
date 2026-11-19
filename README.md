@@ -7,7 +7,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/%40lenremont%2Flanding-kit)](https://www.npmjs.com/package/@lenremont/landing-kit)
 [![License](https://img.shields.io/github/license/lenremont2/lr-landing-template)](LICENSE)
 
-Landing Kit creates and maintains a versioned Astro workspace for Lenremont landing pages. Version 0.3 adds creation in the current directory, confirmed infrastructure updates, bundled social QR media, and automated quality checks. WordPress export and publication remain intentionally deferred.
+Landing Kit creates and maintains a versioned Astro workspace for Lenremont landing pages. Version 0.4 includes the Pi workflow, seven local skills, a task-based development guide, and a lead quiz prepared for transfer through the Lenremont Gutenberg plugin.
 
 ## Requirements
 
@@ -91,4 +91,4 @@ Maintainers can run the seven model pilots from test/pilots/README.md in the sou
 
 ## Current scope
 
-Version 0.3 does not contain WordPress credentials, plugin code, media upload, HTML transformation, or publishing commands.
+The CLI creates Astro projects and updates their managed infrastructure. The separate Lenremont Gutenberg plugin handles WordPress import.

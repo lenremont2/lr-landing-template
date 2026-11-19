@@ -1,4 +1,4 @@
-<!-- Rules snapshot: @lenremont/landing-kit 0.3.1 -->
+<!-- Rules snapshot: @lenremont/landing-kit 0.4.0 -->
 
 # Справочник разработки LR-лендингов
 

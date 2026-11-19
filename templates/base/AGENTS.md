@@ -1,6 +1,6 @@
 # Правила лендинга Lenremont
 
-Rules snapshot: @lenremont/landing-kit 0.3.1.
+Rules snapshot: @lenremont/landing-kit 0.4.0.
 
 Выбери работу по [карте маршрутов](docs/landing-workflow.md) и прочитай скилл текущего шага. Перед существенной правкой сформулируй проверяемый результат. В [техническом справочнике](docs/MASTER_DEVELOPMENT_PROMPT.md) открывай раздел, относящийся к задаче.
 
