@@ -1,0 +1,42 @@
+---
+import LandingLayout from "../../layouts/LandingLayout.astro";
+import LeadCapture from "../../components/sections/LeadCapture.astro";
+
+export function getStaticPaths() {
+  return ["default", "custom", "double"].map((scenario) => ({
+    params: { scenario },
+  }));
+}
+const { scenario } = Astro.params;
+const custom = {
+  title: "Ремонт кофемашины",
+  quizButtonLabel: "Подобрать ремонт",
+  quizQuestion: "Что произошло?",
+  quizOptions: [
+    { label: "Кофе холодный", value: "cold" },
+    { label: "Не включается", value: "power" },
+  ],
+  serviceName: "Кофемашины",
+  contactMethods: [
+    {
+      label: "Telegram",
+      value: "telegram",
+      color: "#0588cc",
+      backgroundColor: "#eef8ff",
+      icon: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 8L15 1L12 15Z"/></svg>',
+    },
+    {
+      label: "Обратный звонок",
+      value: "phone",
+      color: "#114422",
+      backgroundColor: "#ccffcc",
+      icon: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2H5V6H2Z"/></svg>',
+    },
+  ],
+};
+---
+
+<LandingLayout title="Проверка переноса квиза">
+  {scenario !== "custom" && <LeadCapture />}
+  {scenario !== "default" && <LeadCapture {...custom} />}
+</LandingLayout>

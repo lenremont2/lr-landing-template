@@ -86,7 +86,7 @@ node <skill>/scripts/assets.mjs "ghent postcard"
 node <skill>/scripts/assets.mjs "fig" --source museums --orientation portrait
 node <skill>/scripts/assets.mjs "basalt texture" --min-width 2400 --source openverse,commons
 node <skill>/scripts/assets.mjs --get commons:36649959,met:707892     # download, record the credits
-node <skill>/scripts/assets.mjs --credits                             # footer line and report list
+node <skill>/scripts/assets.mjs --credits                             # page attribution and report list
 ```
 
 By default it keeps only licences that allow commercial use (CC0, public domain, CC BY, CC BY-SA) and
@@ -95,7 +95,7 @@ pictures at least 1000 pixels wide, and checks that every image it prints actual
 narrow the list; `--source` picks the sources; `--json` gives the raw results. Each result has a ref
 (`commons:36649959`) that `--get` takes.
 
-**What to search for.** The inventory (SKILL.md step 1), not the category: "bakery" finds other
+**What to search for.** The subject and context from the brief, not the category: "bakery" finds other
 people's bakeries. The subject's world is specific:
 
 - **Its place:** the city, the street, the harbour, the valley, in old postcards and photographs
@@ -154,9 +154,9 @@ Treatments stay within section 6: untouched, greyscale for the whole set, or mul
 - **Caption from the source** when a caption helps: what it is and when, as the archive describes it
   ("Gand, unloading a steamer, 1905"). Never write a caption that ties it to the client.
 - **Record and credit every picture.** `--get` writes the source, creator, licence and page of each
-  download to `assets/credits.json`. CC BY and CC BY-SA require a credit with the title, the creator,
+  download to `public/media/credits.json`. CC BY and CC BY-SA require a credit with the title, the creator,
   a link to the source and a link to the licence; `--credits` prints them as one line of HTML for
-  the footer (section 10). Public-domain pictures need no credit; give one anyway.
+  the page (section 10). Public-domain pictures need no credit; give one anyway.
 - **Respect the licence.** CC BY-SA: an altered version (recoloured, combined with other pictures)
   must be shared under the same licence. Non-commercial (NC) and no-derivatives (ND) licences are out
   for a client's site, which is why the script leaves them out unless asked. Read the `note` lines:
@@ -177,7 +177,7 @@ real footage with `--video` (section 11).
 
 ## 4. The dealt photographs
 
-- The sheet lists eight from one set so they share a subject and a light. Use three to six.
+- The sheet suggests images from one set. Use the ones that fit the content.
 - Each line says where the calm area is. Put text there or keep text off the image.
 - More from the same or another set: `node scripts/draw.mjs --photos list`, `--photos <set>`, or
   `--photos "fog coast"` to search descriptions.
@@ -263,10 +263,10 @@ found ones show the world around the client, the drawings show the client's own 
   and a shaded face of each volume), not gradients. A drawing that would pass as a placeholder icon at
   full size is not finished.
 - **Draw large and let it work:** the drawing is the hero's dominant element, a full-width band, a set
-  of tiles, the footer mark. Small doodles scattered around read as filler.
+  of tiles. Small doodles scattered around read as filler.
 - **Let it carry the idea through the page,** the way a motif does: the same drawn object returns at
   different scales, the tile grid becomes the opening hours, the map becomes the booking section.
-- **Honesty:** say plainly, in small text near the first drawing or in the footer, that the pictures
+- **Honesty:** say plainly, in small text near the first drawing, that the pictures
   are drawn until photographs exist, if the client might otherwise be taken to be showing real
   products. In your report, list which drawings are placeholders for photography.
 - **Not this:** gradient-shaded 3D-looking blobs, isometric clip art, generic line illustrations of
@@ -300,7 +300,7 @@ A dealt photograph further down the page:
      alt="Red and white lighthouse in a turquoise sea below a chalk cliff" loading="lazy" decoding="async">
 ```
 
-The credits, as `--credits` prints them, in the footer:
+The credits, as `--credits` prints them, near the media or in the relevant content section:
 
 ```html
 <p class="credits">Pictures: <a href="https://commons.wikimedia.org/wiki/File:Fig_(Ficus_carica_L.);_57_segments_of_flowers_and_fruits_at_Wellcome_V0043000.jpg">“Fig (Ficus carica L.): 57 segments of flowers and fruits”</a>, <a href="https://creativecommons.org/publicdomain/mark/1.0/">public domain</a>, via Wikimedia Commons.</p>
@@ -312,7 +312,7 @@ The credits, as `--credits` prints them, in the footer:
   alt is the archive's title; rewrite it to say what the picture shows.
 - A coloured `background-color` on the image container (the ground or surface tone) so the layout is
   whole before the image arrives.
-- The credit line is part of the footer's design, at full contrast, with its links. Set it at the body
+- Keep the credit line at full contrast, with its links. Set it at the body
   size; one step smaller only on a page with plenty of running text, because a long credit line in
   small type can become the page's most common text size and fail the inspector's body-size check.
   One line for all pictures; no credit captions laid over the pictures themselves. Credit only the
@@ -407,7 +407,7 @@ shorter clip. Licences, credits and honesty work exactly as for pictures (sectio
   one second can be bright at the next. If any frame drops below 4.5:1 (3:1 for 24px and up), use the
   scrim in section 6 or move the text off the clip. Nothing lies on top of a headline or a statement.
 - It is motion: let it be the page's one moving thing, or sit in a section where nothing else moves.
-- Credit it with the pictures: `--credits` prints one footer line for both ("Pictures and footage:")
+- Credit it with the pictures: `--credits` prints one attribution line for both ("Pictures and footage:")
   and the list for the report, with each clip's length.
 - Where footage goes (hero background, inline loop, the frame that grows, a docked card), and what
   the study measured about it: section 12. Nothing that matters plays on hover only, and a full film
@@ -449,8 +449,7 @@ the links between a placement and the score as leanings, not laws.
 ### How many
 
 - **Seven pictures per page** at the median (middle half 1–25). Top sites 8 (middle half 4–27), lowest
-  2 (0–4). The floor in SKILL.md step 6, four and usually six to twelve, is the strong half of the
-  study.
+  2 (0–4). Choose the count by what helps explain the service.
 - **Footage on 42% of sites:** on half of the top sites and half of the middle band, and on one of the
   16 lowest. A site with footage carries a median of three or four clips.
 - **Three to five placements.** Sites that use two or fewer of the placements below average 7.31;

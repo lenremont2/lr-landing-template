@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  />
+  <title>Контур — ремонт телевизоров</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font:
+        18px/1.45 Arial,
+        sans-serif;
+      color: #202a28;
+      background: #faf9f5;
+    }
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 32px;
+    }
+    section {
+      padding: 32px 0;
+      border-bottom: 1px solid #bec9c0;
+    }
+    .intro {
+      background: #183e37;
+      color: white;
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 40px;
+      align-items: end;
+    }
+    h1 {
+      font-size: clamp(38px, 6vw, 76px);
+      line-height: 1.05;
+      margin: 0;
+    }
+    h2 {
+      font-size: 32px;
+      margin: 0;
+    }
+    p {
+      margin: 12px 0;
+    }
+    a {
+      display: inline-block;
+      padding: 12px 20px;
+      background: #fff0ba;
+      color: #183e37;
+    }
+    a:focus-visible {
+      outline: 4px solid #e87120;
+    }
+    @media (max-width: 680px) {
+      main {
+        padding: 16px;
+      }
+      .intro {
+        padding: 24px;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+  </style>
+  <main>
+    <section class="intro">
+      <h1>Ремонт телевизоров в мастерской «Контур»</h1>
+      <div>
+        <p>Диагностика экрана и питания по записи.</p>
+        <a href="#cost">Посмотреть стоимость</a>
+      </div>
+    </section>
+    <section>
+      <h2>Симптомы</h2>
+      <p>Экран погас, звук остался. Индикатор питания мигает.</p>
+    </section>
+    <section id="cost">
+      <h2>Стоимость</h2>
+      <p>После осмотра мастер объяснит причину и согласует смету.</p>
+    </section>
+    <section>
+      <h2>Порядок работ</h2>
+      <p>Запись, диагностика, согласование и проверка телевизора.</p>
+    </section>
+    <section>
+      <h2>Гарантии</h2>
+      <p>Срок для выполненных работ указывается в заказе.</p>
+    </section>
+  </main>
+</html>

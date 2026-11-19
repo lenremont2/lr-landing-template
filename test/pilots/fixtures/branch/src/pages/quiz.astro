@@ -1,0 +1,11 @@
+---
+import LandingLayout from "../layouts/LandingLayout.astro";
+---
+<LandingLayout title="Подбор услуги">
+  <section class="lr-container" style="background:#183e37;padding:2rem" data-lead-root>
+    <h1>Подбор услуги</h1>
+    <div data-lr-step><label>Услуга <select data-lr-service><option>Экран</option><option>Питание</option></select></label><button type="button" data-lr-next>Далее</button></div>
+    <div data-lr-step hidden><label data-lr-detail>Симптом экрана <input data-lr-symptom /></label><button type="button" data-lr-back>Назад</button><button type="button" data-lr-next>К контактам</button></div>
+    <form data-lr-step data-hop-lead-form hidden><input name="service" type="hidden" /><input name="screen_symptom" type="hidden" /><label>Телефон <input name="phone" type="tel" required /></label><button type="button" data-lr-back>Назад</button><button type="submit">Отправить</button></form>
+  </section>
+</LandingLayout>

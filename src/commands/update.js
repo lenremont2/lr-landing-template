@@ -1,9 +1,11 @@
+import { lstatSync } from "node:fs";
 import {
   copyFile,
   cp,
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -23,6 +25,38 @@ const INFRASTRUCTURE_ENTRIES = [
   "prettier.config.mjs",
   "tsconfig.json",
 ];
+
+async function getReferenceEntries(projectDirectory) {
+  const directory = "docs/landing-kit";
+  for (const parent of ["docs", directory]) {
+    const stat = lstatSync(join(projectDirectory, parent), {
+      throwIfNoEntry: false,
+    });
+    if (stat && !stat.isDirectory()) {
+      throw new Error(`Для справочника нужна обычная папка: ${parent}.`);
+    }
+  }
+
+  const entries = (await readdir(join(templateDirectory, directory))).map(
+    (name) => join(directory, name),
+  );
+  for (const entry of entries) {
+    const target = join(projectDirectory, entry);
+    const stat = lstatSync(target, { throwIfNoEntry: false });
+    if (!stat) continue;
+    if (
+      !stat.isFile() ||
+      !(await readFile(target, "utf8")).startsWith(
+        "<!-- Managed by @lenremont/landing-kit -->",
+      )
+    ) {
+      throw new Error(
+        `Путь главы занят файлом проекта: ${entry}. Перенесите его и повторите обновление.`,
+      );
+    }
+  }
+  return entries;
+}
 
 function createUpdatedPackage(packageJson) {
   const managedPackage = createProjectPackage(packageJson.name);
@@ -75,6 +109,10 @@ export async function updateProject({
   install,
   projectDirectory = process.cwd(),
 }) {
+  const entries = [
+    ...(await getReferenceEntries(projectDirectory)),
+    ...INFRASTRUCTURE_ENTRIES,
+  ];
   const stagingDirectory = await mkdtemp(
     join(
       dirname(projectDirectory),
@@ -83,7 +121,7 @@ export async function updateProject({
   );
 
   try {
-    for (const entry of INFRASTRUCTURE_ENTRIES) {
+    for (const entry of entries) {
       await cp(join(templateDirectory, entry), join(stagingDirectory, entry));
     }
 
@@ -97,7 +135,7 @@ export async function updateProject({
       "utf8",
     );
 
-    for (const entry of INFRASTRUCTURE_ENTRIES) {
+    for (const entry of entries) {
       await cp(join(stagingDirectory, entry), join(projectDirectory, entry));
     }
 

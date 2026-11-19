@@ -151,7 +151,6 @@ the client confirms or replaces it.
 
 ## 6. Things that read as generated
 
-`lint.mjs` flags most of these.
 
 - Verbs and adjectives of the genre: unlock, unleash, supercharge, elevate, empower, streamline,
   seamless, effortless, robust, cutting-edge, next-generation, world-class, all-in-one, blazing fast.

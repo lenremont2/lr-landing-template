@@ -1,12 +1,12 @@
-#hop-landing {
+:is(#hop-landing, .lr-landing) {
   color: var(--lr-color-text);
   font-family: var(--lr-font);
   line-height: 1.5;
 }
 
-#hop-landing h1,
-#hop-landing h2,
-#hop-landing h3,
-#hop-landing p {
+:is(#hop-landing, .lr-landing) h1,
+:is(#hop-landing, .lr-landing) h2,
+:is(#hop-landing, .lr-landing) h3,
+:is(#hop-landing, .lr-landing) p {
   margin-block: 0;
 }

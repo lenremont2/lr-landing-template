@@ -53,19 +53,22 @@ The command always displays a `(y/N)` confirmation before writing anything.
 Declining or submitting an empty answer leaves the project unchanged.
 
 An approved update refreshes the managed infrastructure files (Astro, Prettier
-and TypeScript configuration, `.gitignore`, and `docs/MASTER_DEVELOPMENT_PROMPT.md`) and the
+and TypeScript configuration, `.gitignore`, the reference index and its bundled
+chapters in `docs/landing-kit/`) and the
 standard scripts, engines, and exact development dependency versions in
 `package.json`. Existing custom scripts, dependencies, and package metadata are
 preserved. Project-owned files include `AGENTS.md`, the other files under
 `docs/`, `.agents/skills/`, `src/` and `public/`. The Pi harness is initialized
-by `create`.
+by `create`. If a bundled chapter's path already contains an unmarked local
+file, `update` reports its path before changing the project. Move that file
+to a project-specific name and rerun the update.
 
 Dependencies are installed after the files are updated. Use `--no-install` to
 defer that step and run `npm install` manually.
 
 ## Generated project
 
-The project contains a removable diagnostic screen, modular SCSS with one entrypoint, one vanilla JavaScript entrypoint, and the full versioned development reference.
+The project contains a removable diagnostic screen, modular SCSS with one entrypoint, and a standalone module for the lead quiz. The [development reference](templates/base/docs/MASTER_DEVELOPMENT_PROMPT.md) groups instructions by task, with direct links for Astro, page content, CSS, interaction, lead capture, verification, and HTML On Page compatibility.
 
 The bundled Pi harness includes `AGENTS.md`, `docs/landing-workflow.md`, and seven local skills with their supporting resources. With Pi and a model configured, run `pi` from the generated project root and approve project trust when prompted. Describe the landing task in your own words. Add project rules to `AGENTS.md`. See `docs/pi-harness.md` in the generated project for usage and source snapshot details.
 
@@ -75,6 +78,16 @@ npm run quality
 ```
 
 The diagnostic screen must be deleted when actual landing development begins.
+
+## Gutenberg quiz pilot
+
+A built page containing one marked LeadCapture can be transferred as the editable “Квиз с модалкой” block. The Gutenberg plugin repository owns the adapter and draft import. The [transfer guide](templates/base/docs/landing-kit/embedding.md) covers packaging, editor changes, and browser acceptance.
+
+## Adopting harness changes
+
+For an existing landing, generate an empty comparison project with the desired package version. Compare its AGENTS.md, landing workflow, Pi guide and seven local skills with the project copies. Merge the routes you use and keep local rules. For example, record an agreed 1024 px layout in the page brief, or add a project-specific price-checking skill under .agents/skills/lr-price-table. The generated Pi guide has both examples. The update command refreshes the technical reference at its existing path.
+
+Maintainers can run the seven model pilots from test/pilots/README.md in the source checkout. Pilots use local npm archives and synthetic inputs.
 
 ## Current scope
 

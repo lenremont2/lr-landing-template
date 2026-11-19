@@ -4,7 +4,13 @@ All notable Landing Kit changes are documented here.
 
 ## [Unreleased]
 
+- Split the development reference into seven task-specific chapters. Existing links reach the appropriate entry in the index. Both `create` and `update` deliver the chapters.
+- Route landing requests by deliverable and link to stable technical reference sections. Local changes and full-page acceptance have explicit viewport checks.
+- Report visual style suggestions separately from rendered failures in Taste. Add portable, paired Pi pilots for maintainers. Existing projects can selectively merge the project-owned workflow and skills as described in the README.
+
 ### Added
+
+- Mark each lead quiz for Gutenberg transfer, isolate its modal and radio groups, and support returning to earlier steps. The transfer guide covers the plugin adapter and draft acceptance.
 
 - `landing-kit create` includes the Pi landing workflow, local skills, and Taste resources in generated Astro projects.
 

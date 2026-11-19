@@ -26,6 +26,7 @@ function run(command, arguments_, options = {}) {
     env: {
       ...process.env,
       NO_COLOR: "1",
+      ...options.env,
     },
     stdio: options.capture || options.input !== undefined ? "pipe" : "inherit",
   });
@@ -34,8 +35,9 @@ function run(command, arguments_, options = {}) {
     throw result.error;
   }
   if (result.status !== 0) {
+    const details = result.stderr?.trim();
     throw new Error(
-      `${command} ${arguments_.join(" ")} завершился с кодом ${result.status}.`,
+      `${command} ${arguments_.join(" ")} завершился с кодом ${result.status}.${details ? `\n${details}` : ""}`,
     );
   }
 
@@ -57,6 +59,36 @@ function runNpm(arguments_, options = {}) {
 const workspace = await mkdtemp(join(tmpdir(), "landing-kit-pack-smoke-"));
 const runnerDirectory = join(workspace, "runner");
 const projectDirectory = join(workspace, "lr-smoke");
+const masterPath = "docs/MASTER_DEVELOPMENT_PROMPT.md";
+
+async function checkLocalLinks(path, markdown) {
+  for (const [, target] of markdown.matchAll(/\]\(([^)\s]+)\)/gu)) {
+    if (/^[\w+.-]+:/u.test(target)) continue;
+    const [file, fragment] = target.split("#");
+    const resolved = file
+      ? resolve(dirname(path), decodeURIComponent(file))
+      : path;
+    assert.ok(resolved.startsWith(projectDirectory + sep), target);
+    await access(resolved);
+    if (fragment && resolved.endsWith(".md")) {
+      const document = await readFile(resolved, "utf8");
+      const id = decodeURIComponent(fragment);
+      const headingIds = Array.from(
+        document.matchAll(/^#{1,6} (.+)$/gmu),
+        ([, heading]) =>
+          heading
+            .trim()
+            .toLowerCase()
+            .replace(/[^\p{L}\p{N}_ -]/gu, "")
+            .replaceAll(" ", "-"),
+      );
+      assert.ok(
+        document.includes(`<a id="${id}"></a>`) || headingIds.includes(id),
+        target,
+      );
+    }
+  }
+}
 
 async function verifyPackedHarness() {
   const templateDirectory = join(repositoryDirectory, "templates", "base");
@@ -66,6 +98,12 @@ async function verifyPackedHarness() {
     withFileTypes: true,
   });
   const workflowPath = "docs/landing-workflow.md";
+  const chapterDirectory = "docs/landing-kit";
+  const chapters = await readdir(join(templateDirectory, chapterDirectory));
+  const index = await readFile(join(projectDirectory, masterPath), "utf8");
+  for (const name of chapters) {
+    assert.ok(index.includes(`(landing-kit/${name}`), name);
+  }
   const workflow = await readFile(join(projectDirectory, workflowPath), "utf8");
   for (const skill of [
     "landing-research",
@@ -83,6 +121,8 @@ async function verifyPackedHarness() {
     "AGENTS.md",
     workflowPath,
     "docs/pi-harness.md",
+    masterPath,
+    ...chapters.map((name) => join(chapterDirectory, name)),
     ...skillEntries
       .filter((entry) => entry.isFile())
       .map((entry) =>
@@ -96,21 +136,16 @@ async function verifyPackedHarness() {
       await readFile(join(templateDirectory, file)),
       file,
     );
-    if (file.endsWith(".md")) {
-      for (const [, target] of content
-        .toString("utf8")
-        .matchAll(/\]\(([^)\s]+)\)/gu)) {
-        if (/^(?:[\w+.-]+:|#)/u.test(target)) continue;
-        const resolved = resolve(
-          dirname(path),
-          decodeURIComponent(target.split("#")[0]),
-        );
-        assert.ok(
-          resolved.startsWith(projectDirectory + sep),
-          `${file} links outside the project: ${target}`,
-        );
-        await access(resolved);
-      }
+    const markdown = content.toString("utf8");
+    if (file.endsWith(".md")) await checkLocalLinks(path, markdown);
+    if (file.endsWith("SKILL.md")) {
+      const header = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/u.exec(markdown)?.[1];
+      assert.ok(header, file);
+      assert.equal(
+        /^name: (.+)$/mu.exec(header)?.[1].trim(),
+        dirname(path).split(sep).pop(),
+      );
+      assert.match(header, /^description: ["']?[^\s"'|>].+/mu, file);
     }
   }
 
@@ -125,6 +160,10 @@ try {
     { cwd: repositoryDirectory, capture: true },
   );
   const [packMetadata] = JSON.parse(packResult.stdout);
+  assert.ok(
+    !packMetadata.files.some(({ path }) => path.split("/").includes("pilots")),
+    "Pilot fixtures in archive",
+  );
   const archivePath = join(workspace, packMetadata.filename);
   await access(archivePath);
 
@@ -163,8 +202,50 @@ try {
     { cwd: projectDirectory },
   );
   await verifyPackedHarness();
+  await assert.rejects(access(join(projectDirectory, "test/pilots")), {
+    code: "ENOENT",
+  });
+
+  const tasteOutput = join(workspace, "taste");
+  run(
+    process.execPath,
+    [
+      ".agents/skills/design-taste-frontend/scripts/draw.mjs",
+      "--sector",
+      "other",
+      "--sections",
+      "hero,list,cta,footer",
+      "--direction",
+      "name-as-monument",
+      "--seed",
+      "1",
+      "--out",
+      tasteOutput,
+    ],
+    {
+      cwd: projectDirectory,
+      capture: true,
+      env: { TASTE_SKILL_HISTORY: join(tasteOutput, "history.json") },
+    },
+  );
+  const direction = JSON.parse(
+    await readFile(join(tasteOutput, "direction.json"), "utf8"),
+  );
+  assert.deepEqual(
+    direction.sections.map((section) => section.role),
+    ["list", "cta"],
+  );
 
   const preservedHarnessFiles = new Map();
+  const extra = join(
+    projectDirectory,
+    ".agents/skills/lr-price-table/SKILL.md",
+  );
+  await mkdir(dirname(extra));
+  const custom =
+    "---\nname: lr-price-table\ndescription: Проверяет цены по прайсу.\n---\n";
+  await writeFile(extra, custom);
+  preservedHarnessFiles.set(extra, custom);
   for (const file of [
     "AGENTS.md",
     "docs/landing-workflow.md",
@@ -172,7 +253,15 @@ try {
     ".agents/skills/project-ui/SKILL.md",
   ]) {
     const path = join(projectDirectory, file);
-    const content = `${await readFile(path, "utf8")}\nUser project rule.\n`;
+    const localRule =
+      file === "docs/landing-workflow.md"
+        ? [
+            "[Адаптивность](MASTER_DEVELOPMENT_PROMPT.md#14-адаптивность)",
+            "[Телефон](MASTER_DEVELOPMENT_PROMPT.md#phone)",
+            "[Сдача](MASTER_DEVELOPMENT_PROMPT.md#verification)",
+          ].join("\n")
+        : "User project rule.";
+    const content = `${await readFile(path, "utf8")}\n${localRule}\n`;
     await writeFile(path, content, "utf8");
     preservedHarnessFiles.set(path, content);
   }
@@ -183,6 +272,9 @@ try {
     "preserved-by-update.txt",
   );
   await writeFile(preservedSourcePath, "user source\n", "utf8");
+  const chapter = join(projectDirectory, "docs/landing-kit/forms.md");
+  const formRules = await readFile(chapter, "utf8");
+  await writeFile(chapter, formRules + "\nStale chapter text.\n");
   await writeFile(
     join(projectDirectory, "astro.config.mjs"),
     "// stale infrastructure\n",
@@ -194,8 +286,10 @@ try {
     { cwd: projectDirectory, input: "y\n" },
   );
   assert.match(updateResult.stdout, /Проект обновлён/u);
+  assert.equal(await readFile(chapter, "utf8"), formRules);
   for (const [path, content] of preservedHarnessFiles) {
     assert.equal(await readFile(path, "utf8"), content, path);
+    await checkLocalLinks(path, content);
   }
   await access(join(projectDirectory, "docs/MASTER_DEVELOPMENT_PROMPT.md"));
   assert.equal(await readFile(preservedSourcePath, "utf8"), "user source\n");

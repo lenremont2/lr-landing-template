@@ -17,9 +17,9 @@
 //   node assets.mjs "<query>" --video              search for real footage instead (same options, plus
 //        [--res 720]                               the largest rendition to pick, by its short side
 //        [--max-mb 25]                             clips over this are flagged, and --get refuses them
-//   node assets.mjs --get <ref>[,<ref>...] [--to assets] [--name <file name>] [--width 1920] [--res 720] [--max-mb 25]
+//   node assets.mjs --get <ref>[,<ref>...] [--to public/media] [--name <file name>] [--width 1920] [--res 720] [--max-mb 25]
 //                                                  download into the project and record the credit
-//   node assets.mjs --credits [--to assets]        print the credits for the footer and the report
+//   node assets.mjs --credits [--to public/media]        print the credits for the page and the report
 //
 // Image sources: Openverse (api.openverse.org: Flickr, Wikimedia Commons, museums and libraries in one
 // index), Wikimedia Commons, the Art Institute of Chicago (public-domain works over IIIF) and The
@@ -67,8 +67,8 @@ const USAGE = `Find real, openly licensed pictures of the subject's world, downl
       --res <p>              largest rendition to pick, by its short side, default 720
       --max-mb <n>           clips over this are flagged and --get refuses them, default 25
       --min-width <px>       default 640 for video
-  ${CMD} --get <ref>[,<ref>...] [--to assets] [--name <file name>] [--width 1920] [--res 720] [--max-mb 25]
-  ${CMD} --credits [--to assets]
+  ${CMD} --get <ref>[,<ref>...] [--to public/media] [--name <file name>] [--width 1920] [--res 720] [--max-mb 25]
+  ${CMD} --credits [--to public/media]
 
 Queries work best in the subject's own words and a medium: "ghent postcard", "ghent old map", "azulejo tiles",
 "botanical engraving fig", "rotterdam harbour 1920", "basalt texture". The museum sources match one or two
@@ -143,7 +143,7 @@ const o = {
   res: number('res', 720, 144, 2160),
   maxMb: number('max-mb', 25, 1, 2000),
   check: !args['no-check'],
-  to: resolve(String(args.to || 'assets')),
+  to: resolve(String(args.to || 'public/media')),
   toArg: args.to ? ` --to ${args.to}` : '',
 };
 
@@ -697,7 +697,7 @@ async function search(query, opts) {
   if (opts.video) console.log('Next. Watch before you choose: --get downloads the clip and a poster frame into the project and records the credit.');
   else console.log('Next. Look before you choose: --get downloads into the project and records the credit; open the file to see it.');
   console.log(`  ${CMD} --get <ref>[,<ref>...]${o.toArg}`);
-  console.log(`  ${CMD} --credits${o.toArg}     the footer credit line and the list for your report`);
+  console.log(`  ${CMD} --credits${o.toArg}     the attribution line and the list for your report`);
   console.log(`These ${opts.video ? 'clips' : 'pictures'} show the subject's world. Never present one as the client's own product, room, dish, person or team.`);
   return 0;
 }
@@ -830,7 +830,7 @@ async function getAll(refs, opts) {
   }
   if (failed < refs.length) {
     console.log(`Credits are recorded in ${rel(creditsPath(opts))}. Look at each picture and watch each clip before using it.`);
-    console.log(`Print the footer credits and the report list with: ${CMD} --credits${opts.toArg}`);
+    console.log(`Print the page credits and the report list with: ${CMD} --credits${opts.toArg}`);
   }
   return failed ? 1 : 0;
 }
@@ -848,7 +848,7 @@ function printCredits(opts) {
   };
   const media = new Set(uniq.map((c) => c.media || 'image'));
   const label = media.size > 1 ? 'Pictures and footage' : media.has('video') ? 'Footage' : 'Pictures';
-  console.log('Footer credits (HTML). Full contrast, keep the links, body size (one step smaller only on a page with plenty of');
+  console.log('Image credits (HTML). Full contrast, keep the links, body size (one step smaller only on a page with plenty of');
   console.log('running text). Remove anything the page no longer uses, here and in credits.json.\n');
   console.log(`<p class="credits">${label}: ${uniq.map(html).join('; ')}.</p>`);
   console.log('\nFor your report:\n');

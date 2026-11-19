@@ -47,7 +47,7 @@ export async function promptForUpdateConfirmation({
 } = {}) {
   const readline = createInterface({ input, output });
   const question =
-    "Обновление изменит инфраструктурные файлы и зависимости проекта. Пользовательские исходники и медиа останутся без изменений. Продолжить? (y/N)";
+    "Обновление изменит конфигурацию, зависимости и справочник Landing Kit. Пользовательские исходники и медиа останутся без изменений. Продолжить? (y/N)";
 
   try {
     const answer = (await readline.question(`${question}: `))

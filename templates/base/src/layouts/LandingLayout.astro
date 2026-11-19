@@ -21,10 +21,15 @@ const {
     <title>{title}</title>
   </head>
   <body>
-    <main id="hop-landing">
+    <main id="hop-landing" class="lr-landing">
       <slot />
     </main>
 
+    <script
+      is:inline
+      type="module"
+      src={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/scripts/lead-quiz.js`}
+    ></script>
     <script>
       import "../scripts/landing.js";
     </script>

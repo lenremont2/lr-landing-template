@@ -1,6 +1,6 @@
 # Critique — judging the render
 
-`inspect.mjs` passing means nothing banned or broken was measured. It says nothing about whether the
+`inspect.mjs` passing means no blocking technical issue was measured. It says nothing about whether the
 page is good. This file is how you find out. Use it on the screenshots, never on the code: you wrote
 the code, so you will read your intentions into it. The pictures only show what is there.
 
@@ -44,9 +44,7 @@ sheets. Make each pass on its own; do not blend them.
 7. **Colour.** Name the proportions: which colour holds most of the surface, which supports, where is
    the accent? An accent that appears in ten places means nothing. One that appears on the single
    action and one detail means "here".
-8. **Images.** Count the real pictures: are there at least four, and is there a moving one? A page of
-   drawings only, or of type only, looks unfinished next to one with real photographs and footage.
-   Is every image doing a job (showing the thing, setting the place, proving the claim)?
+8. **Images.** Is every image doing a job (showing the thing, setting the place, proving the claim)?
    Do the crops share ratios? Is anything a grey box, a stretched photo, a fake screen made of bars?
    Does the photography share one light and one grade, or is it a stock mix?
 9. **Sameness.** Write one word for each section's layout (split, list, full-bleed, grid, statement,
@@ -118,10 +116,8 @@ These override the arithmetic.
   a screenshot: overall cannot exceed **6.5**, whatever else is true.
 - Pass 3 fails (the page could belong to anyone): creativity cannot exceed **6**.
 - The idea passes for the nearest competitor (pass 14): creativity cannot exceed **7**.
-- Fewer than four real pictures (photographs, archival images, footage; drawings do not count):
-  design cannot exceed **6.5**.
-- A page that barely moves (the inspector's `still-page`), or motion that is one identical fade on
-  every block: design cannot exceed **7**.
+- If motion is part of the brief, check its timing, feedback, and reduced-motion alternative on the
+  rendered page.
 - No live thing (pass 14): creativity cannot exceed **7.5**.
 - Any placeholder (grey box, lorem, "Image here"): content cannot exceed **5**.
 - Two or more desktop screens that are mostly empty ground, or a page whose running text is small and

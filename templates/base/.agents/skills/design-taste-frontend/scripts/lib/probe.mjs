@@ -417,11 +417,13 @@ export function probe() {
   }
   const uiPictures = [...document.querySelectorAll('[data-ui]')].filter((el) => { const r = el.getBoundingClientRect(); return r.width >= 300 && r.height >= 200; }).length;
   // which elements push the page wider than the viewport (the deepest ones that are not clipped by an ancestor)
+  // Mobile Chrome can expand innerWidth to fit overflowing content.
+  const layoutWidth = document.documentElement.clientWidth;
   let overflowCulprits = [];
-  if (document.documentElement.scrollWidth > W + 2) {
-    const clippedByAncestor = (el) => { for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) { if (getComputedStyle(p).overflowX !== 'visible' && p.getBoundingClientRect().right <= W + 2) return true; } return false; };
-    const wide = all.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > W + 2 && !clippedByAncestor(el); });
-    overflowCulprits = wide.filter((el) => !wide.some((o) => o !== el && el.contains(o))).slice(0, 3).map((el) => `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}${el.classList.length ? '.' + [...el.classList].slice(0, 2).join('.') : ''} (+${Math.round(el.getBoundingClientRect().right - W)}px)`);
+  if (document.documentElement.scrollWidth > layoutWidth + 2) {
+    const clippedByAncestor = (el) => { for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) { if (getComputedStyle(p).overflowX !== 'visible' && p.getBoundingClientRect().right <= layoutWidth + 2) return true; } return false; };
+    const wide = all.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > layoutWidth + 2 && !clippedByAncestor(el); });
+    overflowCulprits = wide.filter((el) => !wide.some((o) => o !== el && el.contains(o))).slice(0, 3).map((el) => `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}${el.classList.length ? '.' + [...el.classList].slice(0, 2).join('.') : ''} (+${Math.round(el.getBoundingClientRect().right - layoutWidth)}px)`);
   }
   // rows that scroll sideways with content past their edge (read as clipped in screenshots and by most visitors)
   const sideScrollers = all.filter((el) => { if (el.closest('[data-ui], table, pre, code')) return false; const cs = getComputedStyle(el); return /auto|scroll/.test(cs.overflowX) && el.scrollWidth > el.clientWidth + 24 && el.clientHeight > 40; }).length;
@@ -437,7 +439,7 @@ export function probe() {
     viewport: { w: W, h: H },
     page: { height: pageH, screens: round(pageH / H, 1), words: bodyText.split(/\s+/).filter(Boolean).length,
       img: document.images.length, video: document.querySelectorAll('video').length, canvas: document.querySelectorAll('canvas').length, svg: document.querySelectorAll('svg').length, sections: document.querySelectorAll('section').length,
-      horizontalOverflow: doc.scrollWidth > W + 2 ? doc.scrollWidth - W : 0, overflowCulprits, uiFragments, uiAbuse, realPictures, videoCount, uiPictures, pictureSamples, blendText, sideScrollers, brokenImages, emoji: [...new Set(emoji)].slice(0, 10),
+      horizontalOverflow: doc.scrollWidth > layoutWidth + 2 ? doc.scrollWidth - layoutWidth : 0, overflowCulprits, uiFragments, uiAbuse, realPictures, videoCount, uiPictures, pictureSamples, blendText, sideScrollers, brokenImages, emoji: [...new Set(emoji)].slice(0, 10),
       videosNoPoster: [...document.querySelectorAll('video')].filter((v) => !v.getAttribute('poster') && v.getBoundingClientRect().width >= 160).length },
     hero: heroOut, h1,
     headings: headingStats.slice(0, 40),
@@ -694,236 +696,4 @@ export function layout() {
   const edges = []; for (const x of lefts) { const e = edges.find((g) => Math.abs(g.x - x) <= 10); if (e) e.n++; else edges.push({ x: Math.round(x), n: 1 }); }
   edges.sort((a, b) => b.n - a.n);
   return { viewport: { w: W, h: H }, pageH, margins: { left: L == null ? null : Math.round(L), right: R == null ? null : Math.round(R) }, sections, gaps, h1s, edgeText, edges: edges.slice(0, 12), leftBlocks: lefts.length, bodySize, stage, explains, slivers, voidShare, voidBox };
-}
-
-// app() measures what an app screen (dashboard, admin, settings, inbox) gets right or wrong: the shell,
-// how much of the canvas is used, panels and their edges, numbers in tables and KPIs, chart colours,
-// the icon-in-a-tinted-square habit, placeholder data, and what happens to the sidebar on a phone.
-export function app() {
-  const W = innerWidth, H = innerHeight, SY = scrollY, B = document.body;
-  const cvs = document.createElement('canvas'); cvs.width = cvs.height = 1;
-  const ctx = cvs.getContext('2d', { willReadFrequently: true });
-  const rgba = (c) => { ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillStyle = c; ctx.fillRect(0, 0, 1, 1); const d = ctx.getImageData(0, 0, 1, 1).data; return { r: d[0], g: d[1], b: d[2], a: d[3] / 255 }; };
-  const hex = (v) => '#' + [v.r, v.g, v.b].map((n) => n.toString(16).padStart(2, '0')).join('');
-  const lum = (v) => { const f = (x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(v.r) + 0.7152 * f(v.g) + 0.0722 * f(v.b); };
-  const contrast = (a, b) => { const l1 = lum(a), l2 = lum(b); return Math.round(((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)) * 100) / 100; };
-  const hsl = (v) => { const r = v.r / 255, g = v.g / 255, b = v.b / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b); const l = (mx + mn) / 2; let h = 0, s = 0; if (mx !== mn) { const d = mx - mn; s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn); h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; } return { h: Math.round(h), s, l }; };
-  const shown = (el, cs) => { cs = cs || getComputedStyle(el); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
-  const groundOf = (el) => { for (let p = el; p; p = p.parentElement) { const v = rgba(getComputedStyle(p).backgroundColor); if (v.a >= 0.9) return v; } return { r: 255, g: 255, b: 255, a: 1 }; };
-  const pageBg = groundOf(B);
-  const all = [...B.querySelectorAll('*')].slice(0, 12000);
-  // 1. the shell: a tall column at one side (sidebar) and a bar across the top
-  let sidebar = null, topbar = null;
-  for (const el of all) {
-    const r = el.getBoundingClientRect(); if (r.width < 40) continue;
-    if (!sidebar && r.left <= 1 && r.top <= 80 && r.height >= H * 0.7 && r.width >= 48 && r.width <= Math.min(360, W * 0.45) && (el.querySelectorAll('a, button').length >= 3) && shown(el)) sidebar = { w: Math.round(r.width), tag: el.tagName.toLowerCase(), links: el.querySelectorAll('a, button').length, share: Math.round((r.width / W) * 100) / 100 };
-    if (!topbar && r.top <= 1 && r.left <= (sidebar ? sidebar.w + 2 : 2) && r.width >= W * 0.6 && r.height >= 36 && r.height <= 96 && shown(el)) topbar = { h: Math.round(r.height) };
-    if (sidebar && topbar) break;
-  }
-  // 2. how much of the canvas the content uses (right of the sidebar)
-  const x0 = sidebar ? sidebar.w : 0;
-  // the text itself (a block element's box runs to the edge whatever its text does), pictures, charts and controls
-  const boxes = [];
-  const tw = document.createTreeWalker(B, NodeFilter.SHOW_TEXT); const trg = document.createRange();
-  for (let n = tw.nextNode(); n && boxes.length < 5000; n = tw.nextNode()) {
-    if (n.nodeValue.trim().length < 2 || !n.parentElement || n.parentElement.closest('svg')) continue;
-    const cs = getComputedStyle(n.parentElement); if (cs.visibility === 'hidden' || cs.display === 'none' || +cs.opacity < 0.05) continue;
-    trg.selectNodeContents(n); const r = trg.getBoundingClientRect(); if (r.width < 2 || r.left < x0 - 1 || (cs.position === 'fixed' && r.left > W * 0.5)) continue;
-    boxes.push(r);
-  }
-  for (const el of B.querySelectorAll('svg, canvas, img, video, input, select, textarea, button, table')) {
-    if (el.parentElement && el.parentElement.closest('svg')) continue;
-    const r = el.getBoundingClientRect(); if (r.width < 8 || r.height < 8 || r.left < x0 - 1 || !shown(el)) continue;
-    boxes.push(r);
-  }
-  const rights = boxes.map((r) => r.right).sort((a, b) => a - b), lefts = boxes.map((r) => r.left).sort((a, b) => a - b);
-  const canvas = boxes.length ? { left: Math.round(lefts[Math.floor(lefts.length * 0.02)] - x0), right: Math.round(W - rights[Math.floor(rights.length * 0.98)]) } : null;
-  // 3. panels: boxes that read as cards (a fill one step from the ground, a border, or a shadow)
-  const panels = []; const radii = new Map(); let heavyBorders = 0, heavyShadows = 0, softShadows = 0, glass = 0; const borderSamples = [], shadowSamples = [];
-  for (const el of all) {
-    const r = el.getBoundingClientRect(); if (r.width < 140 || r.height < 72 || r.width > W * 0.98) continue;
-    const cs = getComputedStyle(el); if (!shown(el, cs)) continue;
-    const bg = rgba(cs.backgroundColor), bw = parseFloat(cs.borderTopWidth) || 0, bc = rgba(cs.borderTopColor);
-    const ground = groundOf(el.parentElement || B);
-    const filled = bg.a >= 0.9 && contrast(bg, ground) >= 1.04, bordered = bw >= 0.5 && cs.borderTopStyle !== 'none' && bc.a > 0.05;
-    const sh = cs.boxShadow !== 'none' ? cs.boxShadow : '';
-    if (!filled && !bordered && !sh) continue;
-    if (!(el.innerText || '').trim()) continue;
-    panels.push({ el, w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top + SY), left: Math.round(r.left), bottom: Math.round(r.bottom + SY), right: Math.round(r.right) });
-    const rad = Math.round(parseFloat(cs.borderTopLeftRadius) || 0); radii.set(rad, (radii.get(rad) || 0) + 1);
-    if (bordered) { const c = contrast({ ...bc, a: 1 }, bg.a >= 0.9 ? bg : ground); if (c >= (lum(ground) > 0.4 ? 1.45 : 1.9)) { heavyBorders++; if (borderSamples.length < 3) borderSamples.push(`${hex(bc)} on ${hex(bg.a >= 0.9 ? bg : ground)} (${c}:1)`); } }
-    if (sh) {
-      for (const part of sh.split(/,(?![^(]*\))/)) {
-        if (/inset/.test(part)) continue; const col = part.match(/rgba?\([^)]+\)/); const nums = part.replace(/rgba?\([^)]+\)/, '').trim().split(/\s+/).map(parseFloat);
-        const a = col ? rgba(col[0]).a : 1; const blur = nums[2] || 0, y = Math.abs(nums[1] || 0);
-        if (a <= 0.02 || (blur === 0 && y === 0 && !(nums[3] > 0))) continue;
-        // on a dark ground a black shadow barely shows; there it only counts when it is near-opaque
-        const darkGround = lum(ground) < 0.2;
-        if (darkGround ? a >= 0.45 : ((a >= 0.12 && blur >= 12) || y >= 8 || a >= 0.25)) { heavyShadows++; if (shadowSamples.length < 3) shadowSamples.push(part.trim().slice(0, 70)); } else softShadows++;
-      }
-    }
-    if (cs.backdropFilter && cs.backdropFilter !== 'none') glass++;
-  }
-  // top-level panels only (a card inside a panel is part of it): rows that end ragged, and how many
-  // panels start on the first screen
-  const panelEls = new Set(panels.map((p) => p.el));
-  const tops = panels.filter((p) => { for (let a = p.el.parentElement; a && a !== B; a = a.parentElement) if (panelEls.has(a)) return false; return p.w < W * 0.97 || p.h < H * 2; });
-  // a column of cards stacked with a gutter of 24px or less is one block: two cards on the left that end level with
-  // one tall card on the right are not ragged. A pair is ragged only when the cards and their columns both end apart.
-  const below = (p) => tops.find((q) => q !== p && Math.abs(q.left - p.left) <= 4 && Math.abs(q.w - p.w) <= 4 && q.top >= p.bottom - 2 && q.top - p.bottom <= 24);
-  const columnBottom = (p) => { let b = p.bottom; for (let q = below(p), n = 0; q && n < 12; q = below(q), n++) b = q.bottom; return b; };
-  const ragged = [];
-  for (let i = 0; i < tops.length; i++) for (let k = i + 1; k < tops.length; k++) {
-    const a = tops[i], b = tops[k];
-    if (Math.abs(a.top - b.top) > 4 || a.w < 200 || b.w < 200 || (a.right > b.left - 4 && b.right > a.left - 4)) continue; // side by side, same row
-    const diff = Math.min(Math.abs(a.bottom - b.bottom), Math.abs(columnBottom(a) - columnBottom(b))), tall = Math.max(a.h, b.h);
-    if (diff > Math.max(24, tall * 0.12)) ragged.push({ diff, top: a.top });
-  }
-  // the largest blank band inside a card: the vertical gap between consecutive pieces of its content (text, charts,
-  // pictures, controls, rules, fills), or from the last piece to the card's padding edge. A legend pinned to the foot
-  // of a stretched card, or four rows in a card kept at its neighbour's height, leave one.
-  const voids = [];
-  const seen = new Map();
-  const visibleIn = (el, root) => { if (seen.has(el)) return seen.get(el); let ok = true; for (let p = el; p && p !== root.parentElement; p = p.parentElement) { const cs = getComputedStyle(p); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05 || cs.position === 'fixed') { ok = false; break; } } seen.set(el, ok); return ok; };
-  for (const p of tops) {
-    if (p.el.matches('nav, aside, header, footer, dialog, [role="navigation"], [role="dialog"]') || p.el.querySelector('nav') || (sidebar && p.left < sidebar.w - 4) || p.h < 120) continue;
-    if (panels.filter((q) => q.el !== p.el && p.el.contains(q.el)).length >= 2) continue; // a frame of cards, not a card
-    const cs = getComputedStyle(p.el), pr = p.el.getBoundingClientRect();
-    const inTop = pr.top + (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.paddingTop) || 0), inBottom = pr.bottom - (parseFloat(cs.borderBottomWidth) || 0) - (parseFloat(cs.paddingBottom) || 0);
-    const bg = rgba(cs.backgroundColor), spans = [];
-    const tw2 = document.createTreeWalker(p.el, NodeFilter.SHOW_TEXT), rg = document.createRange();
-    // text that opens a section (a heading, a summary, or text at 14px/600 or 15px/500 and up) may follow a wider, placed gap
-    for (let n = tw2.nextNode(); n; n = tw2.nextNode()) { if (!n.nodeValue.trim() || !n.parentElement || n.parentElement.closest('svg') || !visibleIn(n.parentElement, p.el)) continue; rg.selectNodeContents(n); const r = rg.getBoundingClientRect(); if (r.height > 0 && r.width > 0) { const pcs = getComputedStyle(n.parentElement); const fs = parseFloat(pcs.fontSize), fw = +pcs.fontWeight; spans.push([r.top, r.bottom, !!n.parentElement.closest('h1, h2, h3, h4, h5, h6, [role="heading"], summary, legend, caption') || (fw >= 600 && fs >= 14) || (fw >= 500 && fs >= 15)]); } }
-    for (const el of p.el.querySelectorAll('*')) {
-      if (el.parentElement && el.parentElement.closest('svg')) continue;
-      const r = el.getBoundingClientRect(); if (r.width < 2 || r.height < 1 || !visibleIn(el, p.el)) continue;
-      if (/^(svg|canvas|img|video|input|select|textarea|button|hr|progress|meter|iframe)$/i.test(el.tagName)) { spans.push([r.top, r.bottom]); continue; }
-      const ecs = getComputedStyle(el), fillC = rgba(ecs.backgroundColor);
-      if (fillC.a >= 0.1 && (bg.a < 0.9 || contrast({ ...fillC, a: 1 }, bg) >= 1.03) && r.height >= 2) spans.push([r.top, r.bottom]);
-      if ((parseFloat(ecs.borderTopWidth) || 0) >= 0.5 && ecs.borderTopStyle !== 'none' && rgba(ecs.borderTopColor).a > 0.05) spans.push([r.top, r.top + 1]);
-      if ((parseFloat(ecs.borderBottomWidth) || 0) >= 0.5 && ecs.borderBottomStyle !== 'none' && rgba(ecs.borderBottomColor).a > 0.05) spans.push([r.bottom - 1, r.bottom]);
-    }
-    const ys = spans.filter(([a, b]) => b > inTop - 2 && a < inBottom + 2).sort((a, b) => a[0] - b[0]);
-    if (!ys.length) continue;
-    // a band counts when it is over 40px, or over 64px when the content after it opens a new section
-    let end = ys[0][1], gap = 0, at = null;
-    for (const [a, b] of ys.slice(1)) { const g = a - end, section = ys.some(([t, , hd]) => hd && Math.abs(t - a) < 6); if (g > (section ? 64 : 40) && g > gap) { gap = g; at = end; } end = Math.max(end, b); }
-    if (inBottom - end > 40 && inBottom - end > gap) { gap = inBottom - end; at = end; }
-    const head = (p.el.querySelector('h1, h2, h3, h4, [role="heading"], header') || p.el).innerText || '';
-    if (gap > 40) voids.push({ gap: Math.round(gap), at: Math.round(at + SY), panel: head.trim().split('\n')[0].slice(0, 40) });
-  }
-  voids.sort((a, b) => b.gap - a.gap);
-  const firstScreen = tops.filter((p) => p.top < H - 48).length;
-  // the icon-in-a-tinted-square habit: small boxes with a coloured fill holding one icon, repeated
-  const chips = []; let tiles = 0;
-  for (const el of all) {
-    const r = el.getBoundingClientRect(); if (r.width < 24 || r.width > 64 || Math.abs(r.width - r.height) > 4) continue;
-    const cs = getComputedStyle(el); const bg = rgba(cs.backgroundColor); if (bg.a < 0.08) continue;
-    const icon = el.querySelector('svg, i, img, [class*="icon" i]'); if (!icon || (el.innerText || '').trim().length > 2) continue;
-    const c = hsl(bg); if (c.s < 0.18 && bg.a > 0.5) { if (r.width >= 28 && !el.closest('button, a, nav, aside, [role="navigation"]')) tiles++; continue; } // neutral: an avatar, a button, or a boxed icon
-    chips.push({ hue: c.h, size: Math.round(r.width), radius: cs.borderTopLeftRadius });
-  }
-  const chipHues = new Set(chips.map((c) => Math.round(c.hue / 30)));
-  // 5. numbers: tables and KPI figures
-  const numRe = /^[−\-+]?[$€£¥]?\s?\d[\d,.\s]*(%|[kKmMbB]|\s?(ms|s|h|min|GB|MB|kB|x))?$/;
-  const cells = [...B.querySelectorAll('td, [role="cell"], [role="gridcell"]')].filter((el) => numRe.test((el.innerText || '').trim()));
-  const leftNums = cells.filter((el) => { const a = getComputedStyle(el).textAlign; const inner = el.firstElementChild ? getComputedStyle(el.firstElementChild).textAlign : a; return /left|start/.test(a) && /left|start/.test(inner) && getComputedStyle(el).justifyContent !== 'flex-end'; }).length;
-  const figures = [];
-  for (const el of all) { if (el.children.length) continue; const t = (el.innerText || '').trim(); if (!numRe.test(t) || t.length < 2) continue; const cs = getComputedStyle(el); if (!shown(el, cs)) continue; figures.push({ size: parseFloat(cs.fontSize), tabular: /tabular-nums/.test(cs.fontVariantNumeric) || /"tnum"/.test(cs.fontFeatureSettings), weight: +cs.fontWeight }); }
-  const tabularShare = figures.length ? Math.round((figures.filter((f) => f.tabular).length / figures.length) * 100) / 100 : null;
-  const rows = [...B.querySelectorAll('tbody tr, [role="row"]')].map((tr) => Math.round(tr.getBoundingClientRect().height)).filter((h) => h > 0);
-  // 6. chart colours: saturated fills and strokes inside SVG charts and canvas-free charts
-  const hues = new Map();
-  for (const svg of B.querySelectorAll('svg')) {
-    const r = svg.getBoundingClientRect(); if (r.width < 120 || r.height < 60) continue;
-    for (const s of svg.querySelectorAll('path, rect, circle, line, polyline, polygon')) {
-      const cs = getComputedStyle(s);
-      for (const c of [cs.fill, cs.stroke]) { if (!c || c === 'none' || c.startsWith('url')) continue; const v = rgba(c); if (v.a < 0.3) continue; const h = hsl(v); if (h.s < 0.25 || h.l < 0.12 || h.l > 0.92) continue; const k = Math.round(h.h / 24); hues.set(k, (hues.get(k) || 0) + 1); }
-    }
-  }
-  // bars and segments drawn with divs count too (a common way to fake a chart)
-  // 7. placeholder data
-  const text = B.innerText || '';
-  const placeholders = [...new Set((text.match(/\b(John|Jane) Doe\b|\bAcme( Inc| Corp)?\b|\bLorem ipsum\b|\bexample\.com\b|\bUser Name\b|\bFirstname Lastname\b|\b123 Main St\b|\bfoo(bar)?\b/gi) || []).map((s) => s.toLowerCase()))];
-  // 8. type at app sizes
-  const sizes = new Map(); let tiny = 0; const tinySamples = [];
-  const walker = document.createTreeWalker(B, NodeFilter.SHOW_TEXT);
-  for (let n = walker.nextNode(); n; n = walker.nextNode()) { const t = n.nodeValue.trim(); if (t.length < 2 || !n.parentElement) continue; const cs = getComputedStyle(n.parentElement); if (cs.visibility === 'hidden' || cs.display === 'none') continue; const s = Math.round(parseFloat(cs.fontSize)); sizes.set(s, (sizes.get(s) || 0) + t.length); if (s < 11 && t.length >= 3) { tiny++; if (tinySamples.length < 4) tinySamples.push(t.slice(0, 24) + ' ' + s + 'px'); } }
-  const total = [...sizes.values()].reduce((a, b) => a + b, 0) || 1;
-  const under13 = Math.round(([...sizes.entries()].filter(([s]) => s < 13).reduce((a, [, c]) => a + c, 0) / total) * 100) / 100;
-  const h1 = document.querySelector('h1'); const h1r = h1 && h1.getBoundingClientRect();
-  // the screen's hero: its h1 when that is on the first screen, else the largest text there. Text is read with a
-  // space between element children, so a figure and its unit ("£55.94" and "at cost") do not run together.
-  const spaced = (el) => { const out = []; const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); for (let n = w.nextNode(); n; n = w.nextNode()) { const t = n.nodeValue.replace(/\s+/g, ' ').trim(); if (t && n.parentElement && !n.parentElement.closest('svg, script, style') && getComputedStyle(n.parentElement).display !== 'none') out.push(t); } return out.join(' ').replace(/\s+([,.;:!?%])/g, '$1').trim(); };
-  let heroEl = h1 && h1r && h1r.width > 0 && h1r.top + SY < H * 0.95 ? h1 : null;
-  if (!heroEl) {
-    let best = null; const hw = document.createTreeWalker(B, NodeFilter.SHOW_TEXT);
-    for (let n = hw.nextNode(); n; n = hw.nextNode()) {
-      const el = n.parentElement; if (!el || n.nodeValue.trim().length < 2 || el.closest('svg, nav, aside, [role="navigation"]')) continue;
-      const r = el.getBoundingClientRect(); if (r.top + SY > H * 0.95 || r.width < 1 || (sidebar && r.left < sidebar.w - 2)) continue;
-      const cs = getComputedStyle(el); if (cs.visibility === 'hidden' || +cs.opacity < 0.05) continue;
-      const size = parseFloat(cs.fontSize); if (!best || size > best.size) best = { el, size };
-    }
-    if (best) { heroEl = best.el; for (let p = heroEl; p && p !== B; p = p.parentElement) if (!/^inline/.test(getComputedStyle(p).display)) { heroEl = p; break; } }
-  }
-  let hero = null;
-  if (heroEl) {
-    const big = [...heroEl.querySelectorAll('*'), heroEl].map((e) => ({ e, s: parseFloat(getComputedStyle(e).fontSize) })).filter((o) => [...o.e.childNodes].some((c) => c.nodeType === 3 && c.nodeValue.trim())).sort((a, b) => b.s - a.s)[0]?.e || heroEl;
-    const cs = getComputedStyle(big), size = parseFloat(cs.fontSize), txt = spaced(heroEl), r = heroEl.getBoundingClientRect();
-    const tops2 = []; const lw = document.createTreeWalker(heroEl, NodeFilter.SHOW_TEXT); const lr = document.createRange();
-    for (let n = lw.nextNode(); n; n = lw.nextNode()) { if (!n.nodeValue.trim()) continue; lr.selectNodeContents(n); for (const rc of lr.getClientRects()) { const mid = rc.top + rc.height / 2; if (rc.width >= 1 && !tops2.some((t) => Math.abs(t - mid) < size * 0.55)) tops2.push(mid); } }
-    const lh = parseFloat(cs.lineHeight);
-    hero = { text: txt.slice(0, 200), words: txt.split(' ').filter(Boolean).length, chars: txt.length, lines: Math.max(1, tops2.length), size: Math.round(size), vw: Math.round((size / W) * 1000) / 10, font: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(), weight: +cs.fontWeight, tracking: Math.round(((parseFloat(cs.letterSpacing) || 0) / size) * 100) / 100, leading: Number.isFinite(lh) ? Math.round((lh / size) * 100) / 100 : 1.2, top: Math.round(r.top + SY), tag: heroEl.tagName.toLowerCase(), kind: 'heading', align: 'left', position: 'left' };
-  }
-  // charts and timelines on the screen (for the data-hue check): sizeable SVGs with marks, or blocks named as one
-  const chartRe = /(^|[\s_-])(chart|plot|graph|timeline|calendar|cal|gantt|heatmap|matrix|strip)([\s_-]|$)/i;
-  const chartCount = [...B.querySelectorAll('svg')].filter((s) => { if (s.parentElement && s.parentElement.closest('svg')) return false; const r = s.getBoundingClientRect(); return r.width >= 200 && r.height >= 80 && s.querySelectorAll('path, rect, line, polyline, circle').length >= 6 && shown(s); }).length
-    + [...B.querySelectorAll('[class]')].filter((e) => typeof e.className === 'string' && chartRe.test(e.className) && !e.closest('svg') && (() => { const r = e.getBoundingClientRect(); return r.width >= 200 && r.height >= 80 && shown(e); })()).length;
-  return {
-    viewport: { w: W, h: H }, dark: lum(pageBg) < 0.2, ground: hex(pageBg),
-    sidebar, topbar, canvas, hero, charts: chartCount,
-    layout: { panels: tops.length, firstScreen, ragged: ragged.slice(0, 6), voids: voids.slice(0, 4) },
-    tiles,
-    panels: { count: panels.length, radii: [...radii.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6), heavyBorders, borderSamples, heavyShadows, softShadows, shadowSamples, glass },
-    chips: { count: chips.length, hues: chipHues.size, samples: chips.slice(0, 4) },
-    numbers: { cells: cells.length, leftAligned: leftNums, figures: figures.length, tabularShare, kpiMax: figures.length ? Math.max(...figures.map((f) => f.size)) : null },
-    rows: rows.length ? { count: rows.length, median: rows.sort((a, b) => a - b)[Math.floor(rows.length / 2)] } : null,
-    chartHues: hues.size,
-    placeholders,
-    type: { under13, tiny, tinySamples, sizes: [...sizes.keys()].sort((a, b) => a - b) },
-    title: h1 && h1r.width > 0 ? { text: (h1.innerText || '').trim().slice(0, 60), size: Math.round(parseFloat(getComputedStyle(h1).fontSize)), top: Math.round(h1r.top + SY) } : null,
-  };
-}
-
-// Share of a screenshot's pixels that are strongly coloured (saturated, neither near-black nor near-white).
-// The studied app screens keep it near 3%; pale tints barely count. Runs inside any page; takes a data: URL.
-export async function colourShare(dataUrl) {
-  const img = new Image(); img.src = dataUrl; await img.decode();
-  const w = 240, h = Math.max(1, Math.round((240 * img.height) / img.width));
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, w, h);
-  const d = x.getImageData(0, 0, w, h).data; let n = 0;
-  for (let i = 0; i < d.length; i += 4) {
-    const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
-    const s = mx === mn ? 0 : l > 0.5 ? (mx - mn) / (2 - mx - mn) : (mx - mn) / (mx + mn);
-    if (s >= 0.4 && l >= 0.18 && l <= 0.82) n++;
-  }
-  return Math.round((n / (w * h)) * 1000) / 1000;
-}
-
-// Dominant colours of a screenshot. Runs inside any page; takes a data: URL.
-export async function palette(dataUrl) {
-  const img = new Image(); img.src = dataUrl; await img.decode();
-  const w = 96, h = Math.max(1, Math.round((96 * img.height) / img.width));
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, w, h);
-  const d = x.getImageData(0, 0, w, h).data; const bins = new Map();
-  for (let i = 0; i < d.length; i += 4) {
-    const k = (d[i] >> 4) << 8 | (d[i + 1] >> 4) << 4 | (d[i + 2] >> 4);
-    const b = bins.get(k) || [0, 0, 0, 0]; b[0] += d[i]; b[1] += d[i + 1]; b[2] += d[i + 2]; b[3]++; bins.set(k, b);
-  }
-  const total = w * h;
-  return [...bins.values()].sort((a, b) => b[3] - a[3]).slice(0, 6).map((b) => ({
-    color: '#' + [0, 1, 2].map((i) => Math.round(b[i] / b[3]).toString(16).padStart(2, '0')).join(''), share: Math.round((b[3] / total) * 100) / 100,
-  }));
 }

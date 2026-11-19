@@ -38,6 +38,7 @@
     "format:check": "prettier --check .",
     "quality": "npm test && npm run format:check",
     "smoke:pack": "node scripts/smoke-pack.mjs",
+    "pilot:prepare": "node test/pilots/prepare.mjs",
     "prepublishOnly": "npm run quality && npm run smoke:pack"
   },
   "engines": {

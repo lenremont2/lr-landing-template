@@ -69,7 +69,7 @@ test("create writes a complete versioned project without optional side effects",
       "utf8",
     );
     const landingScript = await readFile(
-      join(projectDirectory, "src/scripts/landing.js"),
+      join(projectDirectory, "public/scripts/lead-quiz.js"),
       "utf8",
     );
     const socialLinks = await readFile(
@@ -77,7 +77,7 @@ test("create writes a complete versioned project without optional side effects",
       "utf8",
     );
 
-    assert.match(leadCapture, /data-lr-modal-open="quiz"/u);
+    assert.match(leadCapture, /data-lr-modal-open=\{instance\}/u);
     assert.match(leadCapture, /data-lr-lead-form/u);
     assert.match(leadCapture, /Вопрос номер 1\?/u);
     assert.match(leadCapture, /Выберите способ связи/u);
@@ -94,7 +94,7 @@ test("create writes a complete versioned project without optional side effects",
     assert.match(finalForm, /<button[^>]*type="submit"/u);
     assert.match(leadCapture, /data-lead-success hidden/u);
     const rules = await readFile(
-      join(projectDirectory, "docs/MASTER_DEVELOPMENT_PROMPT.md"),
+      join(projectDirectory, "docs/landing-kit/forms.md"),
       "utf8",
     );
     assert.match(rules, /`data-lead-ignore`/u);
@@ -107,6 +107,7 @@ test("create writes a complete versioned project without optional side effects",
     // Run the generated script through the final quiz transition with two forms.
     class Element {}
     const root = new Element();
+    root.id = "hop-landing";
     root.dataset = {};
     root.querySelector = () => null;
     const otherFormField = { value: "other quiz answer" };
@@ -146,8 +147,16 @@ test("create writes a complete versioned project without optional side effects",
         "[data-lr-quiz-step]": step,
         "[data-lr-quiz]": quiz,
       })[selector] || null;
+    answers.forEach((answer) => {
+      answer.dataset = { lrQuizAnswer: answer.name };
+    });
+    ready.closest = () => null;
     runInNewContext(landingScript, {
-      document: { readyState: "complete", querySelector: () => root },
+      document: {
+        readyState: "complete",
+        querySelectorAll: () => [],
+        querySelector: () => root,
+      },
       Element,
       HTMLElement: Element,
       window: { setTimeout: (callback) => callback() },

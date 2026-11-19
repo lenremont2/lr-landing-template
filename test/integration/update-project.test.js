@@ -4,6 +4,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -99,6 +100,9 @@ test("update refreshes infrastructure and preserves user source files", async ()
     await createExistingProject(projectDirectory);
     await mkdir(join(projectDirectory, "public/media"), { recursive: true });
     await writeFile(customMediaPath, "user media\n", "utf8");
+    const chapters = join(projectDirectory, "docs/landing-kit");
+    await mkdir(chapters, { recursive: true });
+    await writeFile(join(chapters, "brief.md"), "# Local brief\n");
 
     const result = runCli(["update", "--no-install"], {
       cwd: projectDirectory,
@@ -131,6 +135,21 @@ test("update refreshes infrastructure and preserves user source files", async ()
     );
     await access(join(projectDirectory, ".gitignore"));
     await access(join(projectDirectory, "docs/MASTER_DEVELOPMENT_PROMPT.md"));
+    const originals = new URL(
+      "../../templates/base/docs/landing-kit/",
+      import.meta.url,
+    );
+    for (const chapter of await readdir(originals)) {
+      assert.deepEqual(
+        await readFile(join(chapters, chapter)),
+        await readFile(new URL(chapter, originals)),
+        chapter,
+      );
+    }
+    assert.equal(
+      await readFile(join(chapters, "brief.md"), "utf8"),
+      "# Local brief\n",
+    );
     assert.equal(
       await readFile(join(projectDirectory, "AGENTS.md"), "utf8"),
       "# Existing project rules\n\nRead [the master prompt](docs/MASTER_DEVELOPMENT_PROMPT.md).\n",
@@ -147,6 +166,34 @@ test("update refreshes infrastructure and preserves user source files", async ()
       "<!-- user landing page -->\n",
     );
     assert.equal(await readFile(customMediaPath, "utf8"), "user media\n");
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+test("update preserves a project document at the path of a new reference chapter", async () => {
+  const workspace = await mkdtemp(
+    join(tmpdir(), "landing-kit-update-conflict-"),
+  );
+  const projectDirectory = join(workspace, "lr-existing-project");
+  try {
+    await createExistingProject(projectDirectory);
+    const chapters = join(projectDirectory, "docs/landing-kit");
+    await mkdir(chapters, { recursive: true });
+    const localFile = join(chapters, "forms.md");
+    await writeFile(localFile, "# Local form rules\n");
+    const result = runCli(["update", "--no-install"], {
+      cwd: projectDirectory,
+      input: "y\n",
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Путь главы занят.*forms\.md/u);
+    assert.equal(await readFile(localFile, "utf8"), "# Local form rules\n");
+    assert.deepEqual(await readdir(chapters), ["forms.md"]);
+    assert.equal(
+      await readFile(join(projectDirectory, "astro.config.mjs"), "utf8"),
+      "// existing infrastructure\n",
+    );
   } finally {
     await rm(workspace, { recursive: true, force: true });
   }

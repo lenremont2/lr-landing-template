@@ -1,4 +1,4 @@
-#hop-landing .lr-button {
+:is(#hop-landing, .lr-landing) .lr-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -13,15 +13,15 @@
   text-decoration: none;
 }
 
-#hop-landing .lr-button--secondary {
+:is(#hop-landing, .lr-landing) .lr-button--secondary {
   border: 1px solid var(--lr-color-border, var(--lr-color-muted));
   background: transparent;
   color: var(--lr-color-text);
 }
 
-#hop-landing .lr-button:focus-visible,
-#hop-landing .lr-modal__close:focus-visible,
-#hop-landing input:focus-visible {
+:is(#hop-landing, .lr-landing) .lr-button:focus-visible,
+:is(#hop-landing, .lr-landing) .lr-modal__close:focus-visible,
+:is(#hop-landing, .lr-landing) input:focus-visible {
   outline: 2px solid var(--lr-color-focus);
   outline-offset: 3px;
 }
