@@ -7,7 +7,9 @@
 [![npm downloads](https://img.shields.io/npm/dm/%40lenremont%2Flanding-kit)](https://www.npmjs.com/package/@lenremont/landing-kit)
 [![License](https://img.shields.io/github/license/lenremont2/lr-landing-template)](LICENSE)
 
-Landing Kit creates and maintains a versioned Astro workspace for Lenremont landing pages. Version 0.4 includes the Pi workflow, seven local skills, a task-based development guide, and a lead quiz prepared for transfer through the Lenremont Gutenberg plugin.
+Landing Kit creates and maintains a versioned Astro workspace for Lenremont landing pages. Version 0.4 includes the Pi workflow, seven landing skills, a task-based development guide, and a lead quiz prepared for transfer through the Lenremont Gutenberg plugin.
+
+**[Структура создаваемого проекта](templates/base/README.md)** — дерево каталогов, роли, сценарии и документы лендинга. Исходное дерево лежит в `templates/base/`.
 
 ## Requirements
 
@@ -70,7 +72,9 @@ defer that step and run `npm install` manually.
 
 The project contains a removable diagnostic screen, modular SCSS with one entrypoint, and a standalone module for the lead quiz. The [development reference](templates/base/docs/MASTER_DEVELOPMENT_PROMPT.md) groups instructions by task, with direct links for Astro, page content, CSS, interaction, lead capture, verification, and HTML On Page compatibility.
 
-The bundled Pi harness includes `AGENTS.md`, `docs/landing-workflow.md`, and seven local skills with their supporting resources. With Pi and a model configured, run `pi` from the generated project root and approve project trust when prompted. Describe the landing task in your own words. Add project rules to `AGENTS.md`. See `docs/pi-harness.md` in the generated project for usage and source snapshot details.
+The bundled Pi harness includes `AGENTS.md`, `.agents/workflows/landing.md`, and 14 local skills: seven for landing development, six for web quality, and find-skills for discovery. With Pi and a model configured, run `pi` from the generated project root and approve project trust when prompted. Describe the landing task in your own words. Add project rules to `AGENTS.md`. See `docs/pi-harness.md` in the generated project for usage and source snapshot details.
+
+Each new project also includes four editable guides: [page design decisions](templates/base/DESIGN.md), [development entry points](templates/base/DEVELOPMENT.md), [Lenremont brand assets and image briefs](templates/base/LENREMONT.md), and [map, price and quiz integrations](templates/base/HANDLER.md). Existing projects can adopt them by copying the guides and the linked logo and merging the links into their own `AGENTS.md`. The guides and logo are project-owned and are preserved by `update`.
 
 ```bash
 npm run dev
@@ -85,7 +89,7 @@ A built page containing one marked LeadCapture can be transferred as the editabl
 
 ## Adopting harness changes
 
-For an existing landing, generate an empty comparison project with the desired package version. Compare its AGENTS.md, landing workflow, Pi guide and seven local skills with the project copies. Merge the routes you use and keep local rules. For example, record an agreed 1024 px layout in the page brief, or add a project-specific price-checking skill under .agents/skills/lr-price-table. The generated Pi guide has both examples. The update command refreshes the technical reference at its existing path.
+For an existing landing, generate an empty comparison project with the desired package version. Compare its AGENTS.md, landing workflow, Pi guide and bundled skills with the project copies. Merge the routes you use and keep local rules. For example, record an agreed 1024 px layout in the page brief, or add a project-specific price-checking skill under .agents/skills/lr-price-table. The generated Pi guide has both examples. The update command refreshes the technical reference at its existing path.
 
 Maintainers can run the seven model pilots from test/pilots/README.md in the source checkout. Pilots use local npm archives and synthetic inputs.
 

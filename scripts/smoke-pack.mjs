@@ -60,6 +60,12 @@ const workspace = await mkdtemp(join(tmpdir(), "landing-kit-pack-smoke-"));
 const runnerDirectory = join(workspace, "runner");
 const projectDirectory = join(workspace, "lr-smoke");
 const masterPath = "docs/MASTER_DEVELOPMENT_PROMPT.md";
+const projectGuides = [
+  "DESIGN.md",
+  "DEVELOPMENT.md",
+  "LENREMONT.md",
+  "HANDLER.md",
+];
 
 async function checkLocalLinks(path, markdown) {
   for (const [, target] of markdown.matchAll(/\]\(([^)\s]+)\)/gu)) {
@@ -97,7 +103,7 @@ async function verifyPackedHarness() {
     recursive: true,
     withFileTypes: true,
   });
-  const workflowPath = "docs/landing-workflow.md";
+  const workflowPath = ".agents/workflows/landing.md";
   const chapterDirectory = "docs/landing-kit";
   const chapters = await readdir(join(templateDirectory, chapterDirectory));
   const index = await readFile(join(projectDirectory, masterPath), "utf8");
@@ -113,13 +119,39 @@ async function verifyPackedHarness() {
     "form-formatter",
     "quiz-generator",
     "family-pages-contract",
+    "find-skills",
+    "web-quality-audit",
+    "accessibility",
+    "seo",
+    "performance",
+    "core-web-vitals",
+    "best-practices",
   ]) {
-    assert.ok(workflow.includes(`../${skillsPath}/${skill}/SKILL.md`), skill);
+    assert.ok(workflow.includes(`../skills/${skill}/SKILL.md`), skill);
   }
 
   for (const file of [
     "AGENTS.md",
+    "README.md",
+    "CLAUDE.md",
+    ".claude/agents/landing-reviewer.md",
+    ".cursor/rules/landing-review.mdc",
+    ".agents/workflows/learning-loop.md",
+    ".agents/roles/team.md",
+    ".agents/evals/routing.md",
+    "docs/product/brief.md",
+    "docs/architecture/overview.md",
+    "docs/design/README.md",
+    "docs/decisions/README.md",
+    "docs/tasks/task-template.md",
+    "docs/landing-workflow.md",
+    "tests/acceptance.md",
+    "scripts/inspect-home.mjs",
     workflowPath,
+    ...projectGuides,
+    "public/media/lenremont-logo.svg",
+    "docs/agent-roles.md",
+    ".codex/agents/landing_reviewer.toml",
     "docs/pi-harness.md",
     masterPath,
     ...chapters.map((name) => join(chapterDirectory, name)),
@@ -137,7 +169,8 @@ async function verifyPackedHarness() {
       file,
     );
     const markdown = content.toString("utf8");
-    if (file.endsWith(".md")) await checkLocalLinks(path, markdown);
+    if (file.endsWith(".md") || file.endsWith(".mdc"))
+      await checkLocalLinks(path, markdown);
     if (file.endsWith("SKILL.md")) {
       const header = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/u.exec(markdown)?.[1];
       assert.ok(header, file);
@@ -150,7 +183,9 @@ async function verifyPackedHarness() {
   }
 
   const rules = await readFile(join(projectDirectory, "AGENTS.md"), "utf8");
-  assert.ok(rules.includes("(docs/landing-workflow.md)"));
+  for (const guide of projectGuides)
+    assert.ok(rules.includes(`(${guide})`), guide);
+  assert.ok(rules.includes(`(${workflowPath})`));
   assert.ok(rules.includes("(docs/MASTER_DEVELOPMENT_PROMPT.md)"));
 }
 
@@ -249,6 +284,10 @@ try {
   for (const file of [
     "AGENTS.md",
     "docs/landing-workflow.md",
+    ".agents/workflows/landing.md",
+    ".agents/roles/team.md",
+    ...projectGuides,
+    "docs/agent-roles.md",
     "docs/pi-harness.md",
     ".agents/skills/project-ui/SKILL.md",
   ]) {

@@ -9,3 +9,4 @@
 - Never write into a non-empty target directory or add a force option.
 - Run `npm run quality` before handoff and `npm run smoke:pack` before publication.
 - Architecture decisions are recorded in `docs/adr`.
+- When changing how agents work on generated landings, use the [maintainer guide](docs/agent-development.md).

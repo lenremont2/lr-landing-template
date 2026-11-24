@@ -3,23 +3,28 @@ name: project-ui
 description: Реализует секцию в принятом дизайне, исправляет адаптивность или проводит визуальное ревью. Выбирай для изменения компонента и проверки готового интерфейса в браузере.
 ---
 
-# Project UI
+# Измени или проверь готовый интерфейс
 
-## Implement
+Прочитай [правила проекта](../../../AGENTS.md), бриф и целевой компонент. Найди ближайший рабочий пример. Следуй принятому макету или визуальному языку соседних секций. Для нового направления или запрошенного редизайна используй [Taste](../design-taste-frontend/SKILL.md).
 
-- Read [AGENTS.md](../../../AGENTS.md), the brief, the target route or component, and its closest reusable components and styles. Follow the supplied reference or the project's existing visual language. For a new direction or requested redesign, use [Taste](../design-taste-frontend/SKILL.md) first.
-- Reuse existing Astro components, SCSS tokens and vanilla JavaScript entrypoints. For layout changes, follow the [scoped CSS and responsive layout rules](../../../docs/landing-kit/styles.md). Use verified content.
-- Keep copy, visual hierarchy, and primary action clear. Avoid decorative gradients, excessive cards, glass effects, oversized headings, or motion unless they support the brief or established design.
-- Preserve semantics, accessible names, keyboard interaction, visible focus, responsive layout, reduced motion, and the loading, empty, error, and disabled states the feature needs.
+## Измени секцию
 
-## Verify or review
+Возьми существующие Astro-компоненты, SCSS-переменные и точки входа vanilla JS. Для вёрстки используй [правила изоляции и адаптива](../../../docs/landing-kit/styles.md). Проверь факты в тексте и видимость основного действия. Карточки, градиенты, стеклянные поверхности, крупные заголовки и анимацию применяй, когда они служат брифу или приняты в проекте.
 
-- Run relevant existing project checks. Inspect the rendered UI at the widths in the brief. Use the viewport matrix for the scope of the task in [the workflow](../../../docs/landing-workflow.md). For a transfer, compare the source and result at the same widths. Verify the main action with the actual input method (for a link, Tab to visible focus and press Enter to reach its target).
-- Check overflow, target sizes, focus, labels, image alternatives, component consistency, and required runtime states. For an implementation request, fix demonstrated defects within scope. For a review request, preserve the project files and report observations and suggested corrections.
-- Review each changed photo next to the heading and copy. Check that its subject and crop answer a visitor's question in that block. For an image review, record why each changed photo was kept, moved, replaced or removed.
-- Before editing a photo-led section, capture the entire section at the target mobile and desktop widths. After removing or replacing a photo, rework the section as a whole. Check its grid, alignment, spacing, visual hierarchy and the balance among comparable items. Capture the rebuilt section at the same widths and compare the images before accepting it. A section can use one shared visual or a consistent text-only layout when that supports its content.
-- For external photos, check the original page and the applicable terms before editing or adding them. Use assets whose terms cover the intended commercial use and any planned adaptations. For photos adapted to the page, choose a crop, tone and framing that clarify the subject and fit the visual direction. Record the creator, original source, license and changes alongside the local asset. Follow required attribution and ShareAlike terms. If rights are unclear, choose another image or a separately created illustration.
-- For a review, give observed issues and evidence in order of user impact. For an implementation, recheck affected behavior after fixes.
-- In the handoff, record the viewport and observed outcome for each affected state, plus paths to screenshots when captured. When a visual comparison changes a design decision, update the existing design notes with the decision and evidence. State which rendered checks could not be performed.
+Сохрани семантику, доступные имена, управление с клавиатуры, видимый фокус и режим уменьшенного движения. Учти состояния, нужные компоненту: загрузка, пустой результат, ошибка, недоступное действие.
 
-For a Landing Kit quiz transfer, compare the Astro and WordPress invitation, question, channel, validation and contact form at 375 and 1440 px. Verify Escape, focus restoration and reopening before accepting the dialog.
+## Если секция держится на фотографии
+
+До правки сними **всю секцию** на целевых мобильной и десктопной ширинах. Прочитай заголовок и подпись рядом с фотографией. Проверь, отвечает ли видимая в кропе деталь на вопрос посетителя.
+
+Для внешнего фото открой оригинал и условия использования. Проверь права на коммерческое использование и запланированные изменения. Сохрани рядом с локальным файлом автора, источник, лицензию и перечень изменений. Выполни условия атрибуции и ShareAlike, если они применимы. При неясных правах выбери другой кадр или самостоятельно созданную иллюстрацию.
+
+При замене фото подбери кадрирование, тон и положение объекта. При удалении пересобери сетку секции: проверь выравнивание, отступы, иерархию и баланс соседних элементов. Иногда достаточно общего кадра или текстовой композиции. Повтори снимки на тех же ширинах. При ревью изображений укажи, почему каждый затронутый кадр оставлен, перемещён, заменён или удалён.
+
+## Воспроизведи действие
+
+Запусти проектные проверки и открой рендер на ширинах из брифа или [маршрута сдачи](../../workflows/landing.md). При переносе сравни оригинал и результат на одинаковых ширинах. Проверь переполнение, размеры целей, подписи, альтернативы изображений, согласованность компонентов и нужные состояния.
+
+Проверь главное действие тем способом, которым воспользуется посетитель. Например, дойди до ссылки клавишей Tab, убедись, что видишь фокус, и нажми Enter. При переносе квиза в Gutenberg сравни приглашение, вопрос, выбор канала, валидацию и форму в Astro и WordPress на 375 и 1440 px. Проверь Escape, возврат фокуса и повторное открытие.
+
+При ревью сохрани исходники и перечисли наблюдения по влиянию на посетителя. Для каждого дай доказательство и предлагаемое исправление. При реализации исправь подтверждённые дефекты в пределах задачи и повтори проверку. В сдаче укажи ширины, результаты, пути к сделанным снимкам и недоступные проверки. Если сравнение изменило дизайн-решение, обнови проектную заметку.
